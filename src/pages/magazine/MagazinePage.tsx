@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import s from './MagazinePage.module.css'
+import MvDialog from './MvDialog.tsx'
 import diner01 from '@/assets/photos/diner-01.jpg'
 import diner02 from '@/assets/photos/diner-02.jpg'
 import diner03 from '@/assets/photos/diner-03.jpg'
@@ -143,6 +144,7 @@ export default function MagazinePage() {
   const [index, setIndex] = useState(0)
   const [held, setHeld] = useState(false)
   const [isHidden, setIsHidden] = useState(() => document.hidden)
+  const [isMvOpen, setIsMvOpen] = useState(false)
   const dragFromX = useRef<number | null>(null)
 
   const move = useCallback((delta: number) => {
@@ -152,19 +154,20 @@ export default function MagazinePage() {
   // 자동 넘김: 인덱스가 바뀔 때마다 5초 카운트다운을 새로 시작한다
   useEffect(() => {
     const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches
-    if (held || isHidden || reducedMotion) return
+    if (held || isHidden || isMvOpen || reducedMotion) return
     const timer = window.setTimeout(() => move(1), AUTO_ADVANCE_MS)
     return () => window.clearTimeout(timer)
-  }, [index, held, isHidden, move])
+  }, [index, held, isHidden, isMvOpen, move])
 
   useEffect(() => {
+    if (isMvOpen) return
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft') move(-1)
       if (event.key === 'ArrowRight') move(1)
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [move])
+  }, [move, isMvOpen])
 
   useEffect(() => {
     const handleVisibilityChange = () => setIsHidden(document.hidden)
@@ -269,6 +272,20 @@ export default function MagazinePage() {
         </h1>
         <p>ILLIT · WONHEE · 2007.06.26</p>
       </header>
+
+      <button type="button" className={s.mvButton} onClick={() => setIsMvOpen(true)}>
+        <span className={s.playDisc} aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 4l14 8-14 8z" />
+          </svg>
+        </span>
+        <span>
+          <small>NEW MV</small>
+          <strong>체포하겠어</strong>
+        </span>
+      </button>
+
+      <MvDialog open={isMvOpen} onClose={() => setIsMvOpen(false)} />
     </div>
   )
 }
