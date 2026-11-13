@@ -45,7 +45,7 @@ export default function BirthdayPage() {
 
   return (
     <div className={s.page}>
-      <title>생일 방 — 원희 팬사이트</title>
+      <title>hee</title>
 
       <header className={s.top}>
         <a className={s.brand} href="#">원희네 방</a>

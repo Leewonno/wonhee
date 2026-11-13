@@ -9,7 +9,7 @@ import diner06 from '@/assets/photos/diner-06.jpg'
 export default function NeonPage() {
   return (
     <div className={s.page}>
-      <title>심야식당 — 원희 팬사이트</title>
+      <title>hee</title>
 
       <header className={s.top}>
         <a className={s.brand} href="#">원희</a>

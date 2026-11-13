@@ -190,7 +190,7 @@ export default function MagazinePage() {
 
   return (
     <div className={s.page}>
-      <title>원희 팬사이트</title>
+      <title>hee</title>
       <main>
         <section
           className={s.stage}
