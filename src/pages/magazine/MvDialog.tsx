@@ -1,7 +1,7 @@
 import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import s from './MagazinePage.module.css'
 
-export const MV_TITLE = "체포하겠어 (You're Under Arrest)"
+const MV_TITLE = "체포하겠어 (You're Under Arrest)"
 const MV_EMBED_URL = 'https://www.youtube-nocookie.com/embed/V2V9-9VhYJo?autoplay=1&rel=0&playsinline=1'
 
 interface MvDialogProps {
@@ -25,14 +25,13 @@ export default function MvDialog({ open, onClose }: MvDialogProps) {
   }
 
   return (
-    <dialog ref={dialogRef} className={s.sheet} aria-labelledby="mv-title" onClose={onClose} onClick={handleClick}>
+    <dialog ref={dialogRef} className={s.sheet} aria-label={`${MV_TITLE} 뮤직비디오`} onClose={onClose} onClick={handleClick}>
       <button type="button" className={s.close} aria-label="닫기" onClick={onClose}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
       </button>
       <div className={s.sheetInner}>
-        <h2 id="mv-title" className={s.sheetTitle}>{MV_TITLE}</h2>
         <div className={s.player}>
           {open && (
             <iframe

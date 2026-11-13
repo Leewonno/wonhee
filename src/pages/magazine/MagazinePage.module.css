@@ -177,10 +177,8 @@
   max-width: none;
   max-height: none;
   margin: 0;
-  /* 영상 크기 계산에 쓰는 값: 위아래 여백, 제목 글자 크기, 제목 아래 간격 */
+  /* 영상 크기 계산에 쓰는 값: 위아래 여백 */
   --pad: clamp(16px, 5vw, 80px);
-  --title-size: clamp(18px, 2vw, 24px);
-  --title-gap: 14px;
   padding: var(--pad);
   border: 0;
   background: rgba(8, 10, 14, 0.92);
@@ -188,9 +186,8 @@
 }
 .sheet[open] { display: grid; place-items: center; }
 .sheet::backdrop { background: transparent; }
-/* 영상 높이 = 화면 높이 − 위아래 여백 − 제목 줄. 그 높이에 맞는 16:9 너비로 정한다 */
-.sheetInner { width: min(100%, calc((100svh - 2 * var(--pad) - var(--title-size) * 1.4 - var(--title-gap)) * 16 / 9)); }
-.sheetTitle { margin: 0 0 var(--title-gap); font-size: var(--title-size); line-height: 1.4; font-weight: 600; }
+/* 영상 높이 = 화면 높이 − 위아래 여백. 그 높이에 맞는 16:9 너비로 정한다 */
+.sheetInner { width: min(100%, calc((100svh - 2 * var(--pad)) * 16 / 9)); }
 /* 닫기 버튼은 영상과 상관없이 화면 오른쪽 위 구석에 둔다 */
 .close {
   position: absolute;
