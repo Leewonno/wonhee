@@ -1,32 +1,11 @@
-# React + TypeScript + Vite
+![WONHEE 메인 페이지](docs/screenshots/magazine-desktop.jpg)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+아일릿(ILLIT) 멤버 원희 팬사이트입니다.
 
-Currently, two official plugins are available:
+**사이트:** https://leewonno.github.io/wonhee/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 기술 스택
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- React 19, TypeScript
+- Vite (빌드, 개발 서버)
+- GitHub Actions → GitHub Pages 배포
