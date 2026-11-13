@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import s from './MagazinePage.module.css'
 import MvDialog from './MvDialog.tsx'
 import diner01 from '@/assets/photos/diner-01.jpg'
@@ -27,7 +27,8 @@ interface Photo {
   readonly alt: string
   readonly width: number
   readonly height: number
-  readonly objectPosition?: string
+  /** 얼굴 중심 위치. 사진 왼쪽 위가 0, 오른쪽 아래가 1 */
+  readonly focus: { readonly x: number; readonly y: number }
 }
 
 interface Slide {
@@ -49,91 +50,100 @@ const SLIDES: readonly Slide[] = [
     id: 'slide-01',
     layout: 'three',
     photos: [
-      { src: editorial02, alt: '위에서 내려다본 구도로, 노란 책을 안고 옆을 바라보는 원희', width: 1440, height: 1920 },
-      { src: editorial03, alt: '파란 벽 앞에 서서 노란 상자와 열쇠를 들어 보이는 원희', width: 1440, height: 1920 },
-      { src: editorial07, alt: '흰 배경 앞, 옆을 바라보는 원희 얼굴 클로즈업', width: 1372, height: 1920 },
+      { src: editorial02, alt: '위에서 내려다본 구도로, 노란 책을 안고 옆을 바라보는 원희', width: 1440, height: 1920, focus: { x: 0.5, y: 0.31 } },
+      { src: editorial03, alt: '파란 벽 앞에 서서 노란 상자와 열쇠를 들어 보이는 원희', width: 1440, height: 1920, focus: { x: 0.53, y: 0.22 } },
+      { src: editorial07, alt: '흰 배경 앞, 옆을 바라보는 원희 얼굴 클로즈업', width: 1372, height: 1920, focus: { x: 0.5, y: 0.38 } },
     ],
   },
   {
     id: 'slide-02',
     layout: 'one',
     photos: [
-      { src: editorial05, alt: '바닥에 앉아 분홍색 책자를 펼쳐 든 원희', width: 1920, height: 1281 },
+      { src: editorial05, alt: '바닥에 앉아 분홍색 책자를 펼쳐 든 원희', width: 1920, height: 1281, focus: { x: 0.37, y: 0.22 } },
     ],
   },
   {
     id: 'slide-03',
     layout: 'one',
     photos: [
-      { src: editorial04, alt: '물건이 흩어진 방, 파란 벽에 기대선 원희의 전신 사진', width: 1920, height: 1281 },
+      { src: editorial04, alt: '물건이 흩어진 방, 파란 벽에 기대선 원희의 전신 사진', width: 1920, height: 1281, focus: { x: 0.58, y: 0.27 } },
     ],
   },
   {
     id: 'slide-04',
     layout: 'one',
     photos: [
-      { src: editorial01, alt: '바닥에 엎드리듯 기대어 카메라를 바라보는 원희', width: 1920, height: 1440 },
+      { src: editorial01, alt: '바닥에 엎드리듯 기대어 카메라를 바라보는 원희', width: 1920, height: 1440, focus: { x: 0.14, y: 0.41 } },
     ],
   },
   {
     id: 'slide-05',
     layout: 'one',
     photos: [
-      { src: editorial06, alt: '잡지 더미 옆에 기대앉아 뒤돌아보는 원희', width: 1920, height: 1440, objectPosition: '50% 0%' },
+      { src: editorial06, alt: '잡지 더미 옆에 기대앉아 뒤돌아보는 원희', width: 1920, height: 1440, focus: { x: 0.56, y: 0.14 } },
     ],
   },
   {
     id: 'slide-06',
     layout: 'one',
     photos: [
-      { src: diner04, alt: '푸른 조명의 식당에서 이마에 곰돌이 패치를 붙이고 두 주먹을 들어 보이는 원희', width: 1920, height: 1318 },
+      { src: diner04, alt: '푸른 조명의 식당에서 이마에 곰돌이 패치를 붙이고 두 주먹을 들어 보이는 원희', width: 1920, height: 1318, focus: { x: 0.46, y: 0.27 } },
     ],
   },
   {
     id: 'slide-07',
     layout: 'one',
     photos: [
-      { src: diner01, alt: '국수 그릇이 놓인 식탁에 기대앉아 옆을 바라보는 원희', width: 1920, height: 1318 },
+      { src: diner01, alt: '국수 그릇이 놓인 식탁에 기대앉아 옆을 바라보는 원희', width: 1920, height: 1318, focus: { x: 0.57, y: 0.29 } },
     ],
   },
   {
     id: 'slide-08',
     layout: 'one',
     photos: [
-      { src: diner02, alt: '이마에 곰돌이 패치를 붙이고 곁눈질하는 원희', width: 1920, height: 1318 },
+      { src: diner02, alt: '이마에 곰돌이 패치를 붙이고 곁눈질하는 원희', width: 1920, height: 1318, focus: { x: 0.5, y: 0.52 } },
     ],
   },
   {
     id: 'slide-09',
     layout: 'one',
     photos: [
-      { src: diner03, alt: '기둥에 묶인 커다란 곰인형 앞에서 두 팔을 치켜든 원희', width: 1920, height: 1318 },
+      { src: diner03, alt: '기둥에 묶인 커다란 곰인형 앞에서 두 팔을 치켜든 원희', width: 1920, height: 1318, focus: { x: 0.57, y: 0.27 } },
     ],
   },
   {
     id: 'slide-10',
     layout: 'one',
     photos: [
-      { src: diner05, alt: '네온 간판이 켜진 빈 식당에서 혼자 국수를 먹는 원희', width: 1920, height: 1273 },
+      { src: diner05, alt: '네온 간판이 켜진 빈 식당에서 혼자 국수를 먹는 원희', width: 1920, height: 1273, focus: { x: 0.66, y: 0.68 } },
     ],
   },
   {
     id: 'slide-11',
     layout: 'one',
     photos: [
-      { src: diner06, alt: '분홍색 눈물이 흐르는 얼굴로 정면을 바라보는 원희 클로즈업', width: 1920, height: 1318 },
+      { src: diner06, alt: '분홍색 눈물이 흐르는 얼굴로 정면을 바라보는 원희 클로즈업', width: 1920, height: 1318, focus: { x: 0.5, y: 0.48 } },
     ],
   },
   {
     id: 'slide-12',
     layout: 'three',
     photos: [
-      { src: pastel01, alt: '보라색 프릴 침대에 앉아 컨페티 속에서 웃고 있는 원희', width: 1536, height: 1920 },
-      { src: pastel03, alt: '분홍 왕관을 쓰고 생일 케이크를 든 원희', width: 1920, height: 1920 },
-      { src: pastel02, alt: '꽃무늬 소파에 앉아 토끼 인형을 끌어안은 원희', width: 1536, height: 1920 },
+      { src: pastel01, alt: '보라색 프릴 침대에 앉아 컨페티 속에서 웃고 있는 원희', width: 1536, height: 1920, focus: { x: 0.5, y: 0.39 } },
+      { src: pastel03, alt: '분홍 왕관을 쓰고 생일 케이크를 든 원희', width: 1920, height: 1920, focus: { x: 0.62, y: 0.44 } },
+      { src: pastel02, alt: '꽃무늬 소파에 앉아 토끼 인형을 끌어안은 원희', width: 1536, height: 1920, focus: { x: 0.4, y: 0.17 } },
     ],
   },
 ]
+
+// 화면 비율이 달라져도 얼굴이 사진 칸 가운데에 오도록 CSS에 넘길 값
+function focusStyle(photo: Photo): CSSProperties {
+  return {
+    '--fx': photo.focus.x,
+    '--fy': photo.focus.y,
+    '--ar': photo.width / photo.height,
+  } as CSSProperties
+}
 
 const ARROWS: readonly Arrow[] = [
   { key: 'prev', className: s.prev, label: '이전 사진', delta: -1, path: 'M15 4l-8 8 8 8' },
@@ -230,7 +240,7 @@ export default function MagazinePage() {
                         width={photo.width}
                         height={photo.height}
                         loading={slideIndex === 0 ? 'eager' : 'lazy'}
-                        style={photo.objectPosition ? { objectPosition: photo.objectPosition } : undefined}
+                        style={focusStyle(photo)}
                       />
                     </figure>
                   ))}
