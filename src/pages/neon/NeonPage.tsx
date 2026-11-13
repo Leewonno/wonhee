@@ -9,7 +9,7 @@ import diner06 from '@/assets/photos/diner-06.jpg'
 export default function NeonPage() {
   return (
     <div className={s.page}>
-      <title>hee</title>
+      <title>WONHEE</title>
 
       <header className={s.top}>
         <a className={s.brand} href="#">원희</a>

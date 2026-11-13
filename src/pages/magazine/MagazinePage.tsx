@@ -203,7 +203,7 @@ export default function MagazinePage() {
 
   return (
     <div className={s.page}>
-      <title>hee</title>
+      <title>WONHEE</title>
       <main>
         <section
           className={s.stage}
