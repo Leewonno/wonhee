@@ -134,12 +134,36 @@
   text-shadow: 0 1px 10px rgba(10, 14, 20, 0.6);
 }
 
-/* 신곡 MV: 오른쪽 아래 버튼 → 전체 화면 플레이어 */
-.mvButton {
+/* 오른쪽 아래: 자동 넘김 멈춤/재생 + 신곡 MV 버튼 */
+.controls {
   position: absolute;
   z-index: 3;
   right: var(--gutter);
   bottom: clamp(36px, 7svh, 76px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.autoplayToggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(12, 16, 22, 0.5);
+  backdrop-filter: blur(10px);
+  color: var(--paper);
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+.autoplayToggle:hover { background: rgba(12, 16, 22, 0.72); }
+.autoplayToggle svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* 신곡 MV: 누르면 전체 화면 플레이어 */
+.mvButton {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -216,11 +240,12 @@
   .slide.three { flex-direction: column; }
   .arrow { width: 44px; height: 44px; }
   .mast { left: 16px; bottom: 96px; }
-  .mvButton { left: 16px; right: 16px; bottom: 20px; }
+  .controls { left: 16px; right: 16px; bottom: 20px; }
+  .mvButton { flex: 1; }
   .mast h1 { width: 50vw; }
   .mast p { margin-top: 0.8em; max-width: 15em; font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sign path { animation: none; }
-  .slide, .arrow, .mvButton { transition: none; }
+  .slide, .arrow, .autoplayToggle, .mvButton { transition: none; }
 }
