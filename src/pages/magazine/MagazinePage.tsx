@@ -11,7 +11,7 @@ import GalleryDialog from "./GalleryDialog.tsx";
 import MvDialog from "./MvDialog.tsx";
 import { SLIDES, type Photo } from "./heroSlides.ts";
 
-const AUTO_ADVANCE_MS = 5000;
+const AUTO_ADVANCE_MS = 3000;
 const SWIPE_THRESHOLD_PX = 40;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -66,7 +66,7 @@ export default function MagazinePage() {
     setIndex((current) => (current + delta + SLIDES.length) % SLIDES.length);
   }, []);
 
-  // 자동 넘김: 인덱스가 바뀔 때마다 5초 카운트다운을 새로 시작한다
+  // 자동 넘김: 인덱스가 바뀔 때마다 3초 카운트다운을 새로 시작한다
   useEffect(() => {
     if (isPaused || held || isHidden || isDialogOpen) return;
     const timer = window.setTimeout(() => move(1), AUTO_ADVANCE_MS);
