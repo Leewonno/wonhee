@@ -1,6 +1,6 @@
 ![WONHEE 메인 페이지](docs/screenshots/magazine-desktop.jpg)
 
-아일릿(ILLIT) 멤버 원희 팬사이트입니다.
+아일릿(ILLIT) 멤버 원희의 팬사이트입니다.
 
 **사이트:** https://leewonno.github.io/wonhee/
 
