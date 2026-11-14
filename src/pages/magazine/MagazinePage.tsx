@@ -7,6 +7,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import s from "./MagazinePage.module.css";
+import GalleryDialog from "./GalleryDialog.tsx";
 import MvDialog from "./MvDialog.tsx";
 import { SLIDES, type Photo } from "./heroSlides.ts";
 
@@ -53,6 +54,8 @@ export default function MagazinePage() {
   const [held, setHeld] = useState(false);
   const [isHidden, setIsHidden] = useState(() => document.hidden);
   const [isMvOpen, setIsMvOpen] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const isDialogOpen = isMvOpen || isGalleryOpen;
   // 움직임 줄이기를 켠 사용자는 멈춘 상태로 시작한다. 버튼으로 직접 다시 켤 수 있다
   const [isPaused, setIsPaused] = useState(
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
@@ -65,20 +68,20 @@ export default function MagazinePage() {
 
   // 자동 넘김: 인덱스가 바뀔 때마다 5초 카운트다운을 새로 시작한다
   useEffect(() => {
-    if (isPaused || held || isHidden || isMvOpen) return;
+    if (isPaused || held || isHidden || isDialogOpen) return;
     const timer = window.setTimeout(() => move(1), AUTO_ADVANCE_MS);
     return () => window.clearTimeout(timer);
-  }, [index, isPaused, held, isHidden, isMvOpen, move]);
+  }, [index, isPaused, held, isHidden, isDialogOpen, move]);
 
   useEffect(() => {
-    if (isMvOpen) return;
+    if (isDialogOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") move(-1);
       if (event.key === "ArrowRight") move(1);
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [move, isMvOpen]);
+  }, [move, isDialogOpen]);
 
   useEffect(() => {
     const handleVisibilityChange = () => setIsHidden(document.hidden);
@@ -201,7 +204,22 @@ export default function MagazinePage() {
       <div className={s.controls}>
         <button
           type="button"
-          className={s.autoplayToggle}
+          className={s.roundButton}
+          aria-label="사진 갤러리 열기"
+          aria-haspopup="dialog"
+          onClick={() => setIsGalleryOpen(true)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="4" width="7" height="7" rx="1.5" />
+            <rect x="13" y="4" width="7" height="7" rx="1.5" />
+            <rect x="4" y="13" width="7" height="7" rx="1.5" />
+            <rect x="13" y="13" width="7" height="7" rx="1.5" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className={s.roundButton}
           aria-controls="slides"
           aria-label={
             isPaused ? "사진 자동 넘김 다시 시작" : "사진 자동 넘김 멈추기"
@@ -237,6 +255,10 @@ export default function MagazinePage() {
       </div>
 
       <MvDialog open={isMvOpen} onClose={() => setIsMvOpen(false)} />
+      <GalleryDialog
+        open={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+      />
     </div>
   );
 }

@@ -1,0 +1,240 @@
+/* 갤러리: MV 모달과 같은 어두운 전체 화면. 색 변수(--paper, --ink, --gutter)는 .page에서 물려받는다 */
+.sheet {
+  --sheet: rgba(8, 10, 14, 0.94);
+  --line: rgba(246, 241, 229, 0.22);
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--sheet);
+  color: var(--paper);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sheet[open] { animation: fade-in 0.24s ease both; }
+.sheet::backdrop { background: transparent; }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 위쪽: 제목 · 묶음 버튼 · 닫기. 스크롤해도 붙어 있다 */
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 24px);
+  padding: clamp(14px, 2.4vw, 28px) var(--gutter);
+  background: linear-gradient(var(--sheet) 70%, transparent);
+}
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: none;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+.title span { font-weight: 400; opacity: 0.56; }
+/* 묶음 버튼 줄. 넘치면 양끝 화살표로 옆으로 민다 */
+.chipBar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+/* 위아래 여백은 포커스 테두리가 잘리지 않게 두는 자리 */
+.chips {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  margin: -6px 0;
+  padding: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.chip:hover { border-color: rgba(246, 241, 229, 0.5); }
+.chip:focus-visible { outline-width: 2px; outline-offset: 2px; }
+.chip[aria-pressed="true"] { border-color: var(--paper); background: var(--paper); color: var(--ink); }
+.chipArrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(246, 241, 229, 0.12);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.18s ease, opacity 0.18s ease;
+}
+.chipArrow:hover { background: rgba(246, 241, 229, 0.24); }
+.chipArrow[aria-disabled="true"] { opacity: 0.3; cursor: default; }
+.chipArrow[aria-disabled="true"]:hover { background: rgba(246, 241, 229, 0.12); }
+.chipArrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(246, 241, 229, 0.12);
+  color: inherit;
+  cursor: pointer;
+}
+.close:hover { background: rgba(246, 241, 229, 0.24); }
+.close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+
+/* 사진첩: 사진을 자르지 않고 원래 비율 그대로 열마다 쌓는다 */
+.grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 4px var(--gutter) 64px;
+}
+.column { display: flex; flex: 1 1 0; flex-direction: column; gap: 12px; min-width: 0; }
+.tile {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(246, 241, 229, 0.06);
+  overflow: hidden;
+  cursor: pointer;
+}
+/* 사진이 오기 전에는 세로 사진 크기만큼 자리를 잡아 둔다 */
+.tile[data-loaded="false"] { aspect-ratio: 4 / 5; }
+.tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.4s ease;
+}
+.tile[data-loaded="true"] img { opacity: 1; }
+.tile:hover img { opacity: 0.86; transform: scale(1.02); }
+.empty { margin: 0; padding: 12svh var(--gutter); text-align: center; opacity: 0.64; }
+
+/* 크게 보기 */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: #06080b;
+  animation: fade-in 0.2s ease both;
+}
+.viewerHead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: clamp(14px, 2.4vw, 28px) var(--gutter);
+}
+.counter { margin: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+.counter b { font-weight: 600; }
+.counter span { opacity: 0.56; }
+.series { font-size: 12px; font-weight: 600; opacity: 0.72; }
+.stage {
+  position: relative;
+  min-height: 0;
+  padding: 0 clamp(72px, 8vw, 120px) clamp(24px, 5svh, 56px);
+  touch-action: pan-y;
+}
+/* 사진 크기에 맞춘 링크 칸을 가운데 둔다. 비율을 알기 전에는 칸 전체를 쓴다 */
+.frame {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+}
+.photoLink {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: zoom-in;
+  -webkit-touch-callout: none;
+}
+.photoLink[style] {
+  width: min(100cqw, 100cqh * var(--ratio));
+  height: auto;
+  aspect-ratio: var(--ratio);
+}
+.photoLink:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px; }
+.photoLink img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+.full { opacity: 0; transition: opacity 0.25s ease; }
+.photoLink[data-loaded="true"] .full { opacity: 1; }
+.arrow {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(246, 241, 229, 0.1);
+  color: inherit;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color 0.18s ease;
+}
+.arrow:hover { background: rgba(246, 241, 229, 0.22); }
+.arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.prev { left: clamp(10px, 1.6vw, 26px); }
+.next { right: clamp(10px, 1.6vw, 26px); }
+
+@media (max-width: 820px) {
+  .head { flex-wrap: wrap; row-gap: 12px; padding: 14px 16px 10px; }
+  .chipBar { order: 3; flex-basis: 100%; }
+  .grid { gap: 6px; padding: 4px 6px 48px; }
+  .column { gap: 6px; }
+  .viewerHead { padding: 14px 16px; }
+  /* 휴대폰에서는 화살표 없이 옆으로 밀어서 넘긴다 */
+  .arrow { display: none; }
+  .stage { padding: 0 0 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open], .viewer { animation: none; }
+  .tile img, .chip, .chipArrow, .full { transition: none; }
+}

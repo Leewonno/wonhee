@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>시안 · 갤러리 모달 — 원희 팬사이트</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+<style>
+  :root {
+    --wall: #7d97aa;
+    --paper: #f6f1e5;
+    --ink: #1f1e19;
+    --sheet: rgba(8, 10, 14, 0.94);
+    --line: rgba(246, 241, 229, 0.22);
+    --body: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
+    --gutter: clamp(20px, 5vw, 80px);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--wall);
+    color: var(--paper);
+    font: 17px/1.75 var(--body);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
+  .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* ───────── 메인 화면(배경 맥락용, 실제 페이지를 단순화) ───────── */
+  .page { position: relative; height: 100svh; min-height: 480px; overflow: hidden; }
+  .page > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 27%; }
+  .page::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(to top, rgba(12, 16, 22, 0.62) 0%, rgba(12, 16, 22, 0.26) 26%, transparent 52%),
+      radial-gradient(90% 70% at 0% 100%, rgba(12, 16, 22, 0.42) 0%, transparent 70%);
+  }
+  .mast { position: absolute; z-index: 2; left: var(--gutter); bottom: clamp(36px, 7svh, 76px); }
+  .mast svg { display: block; width: min(32vw, 52svh, 480px); height: auto; overflow: visible; filter: drop-shadow(0 2px 10px rgba(10, 14, 20, 0.45)); }
+  .mast path { fill: none; stroke: var(--paper); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .mast p { margin: 1.1em 0 0 0.3em; font-size: clamp(17px, 1.5vw, 22px); line-height: 1.5; text-shadow: 0 1px 10px rgba(10, 14, 20, 0.6); }
+  .controls { position: absolute; z-index: 3; right: var(--gutter); bottom: clamp(36px, 7svh, 76px); display: flex; align-items: center; gap: 10px; }
+  .roundButton {
+    display: grid; place-items: center; flex: none; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%;
+    background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); color: var(--paper); cursor: pointer; transition: background-color 0.18s ease;
+  }
+  .roundButton:hover { background: rgba(12, 16, 22, 0.72); }
+  .roundButton svg { width: 20px; height: 20px; fill: currentColor; }
+  .mvButton {
+    display: flex; align-items: center; gap: 14px; padding: 8px 22px 8px 8px; border: 0; border-radius: 999px;
+    background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); text-align: left; cursor: pointer;
+  }
+  .mvButton small { display: block; font-size: 12px; line-height: 1.4; letter-spacing: 0.12em; opacity: 0.72; }
+  .mvButton strong { display: block; font-size: 17px; line-height: 1.4; font-weight: 600; }
+  .playDisc { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--paper); color: var(--ink); }
+  .playDisc svg { width: 18px; height: 18px; margin-left: 3px; fill: currentColor; }
+
+  /* ───────── 공통: 모달 시트 (MV 모달과 같은 어두운 전체 화면) ───────── */
+  .sheet {
+    position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0;
+    border: 0; background: var(--sheet); color: var(--paper);
+    overflow-y: auto; overscroll-behavior: contain;
+  }
+  .sheet[open] { animation: sheet-in 0.24s ease both; }
+  .sheet::backdrop { background: transparent; }
+  @keyframes sheet-in { from { opacity: 0; } to { opacity: 1; } }
+
+  .head {
+    position: sticky; top: 0; z-index: 4;
+    display: flex; align-items: center; gap: clamp(12px, 2vw, 24px);
+    padding: clamp(14px, 2.4vw, 28px) var(--gutter);
+    background: linear-gradient(var(--sheet) 70%, transparent);
+  }
+  .title { margin: 0; display: flex; align-items: baseline; gap: 10px; flex: none; font-size: 14px; font-weight: 600; letter-spacing: 0.18em; line-height: 1; }
+  .title span { font-weight: 400; letter-spacing: 0.04em; opacity: 0.56; }
+  .chips { display: flex; gap: 6px; min-width: 0; margin: -6px; padding: 6px; overflow-x: auto; scrollbar-width: none; }
+  .chip:focus-visible { outline-width: 2px; outline-offset: 2px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
+    background: transparent; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; line-height: 1; cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  }
+  .chip:hover { border-color: rgba(246, 241, 229, 0.5); }
+  .chip[aria-pressed="true"] { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+  .close {
+    display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: auto; padding: 0; border: 0; border-radius: 50%;
+    background: rgba(246, 241, 229, 0.12); cursor: pointer;
+  }
+  .close:hover { background: rgba(246, 241, 229, 0.24); }
+  .close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+
+  .arrow {
+    position: absolute; z-index: 3; top: 50%; display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%;
+    background: rgba(246, 241, 229, 0.1); cursor: pointer; transform: translateY(-50%); transition: background-color 0.18s ease;
+  }
+  .arrow:hover { background: rgba(246, 241, 229, 0.22); }
+  .arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .arrow.prev { left: clamp(10px, 1.6vw, 26px); }
+  .arrow.next { right: clamp(10px, 1.6vw, 26px); }
+
+  .counter { font-size: 13px; letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+  .counter b { font-weight: 600; }
+  .counter span { opacity: 0.56; }
+  .series { font-size: 12px; font-weight: 600; letter-spacing: 0.18em; opacity: 0.72; }
+
+  .thumb { display: block; width: 100%; padding: 0; border: 0; background: rgba(246, 241, 229, 0.06); cursor: zoom-in; overflow: hidden; }
+  .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease, transform 0.4s ease; }
+  .thumb:hover img { opacity: 0.86; transform: scale(1.02); }
+
+  /* ───────── A. 사진첩: 원래 비율 그대로 쌓는 그리드 ───────── */
+  .masonry { columns: 4 220px; column-gap: 12px; padding: 4px var(--gutter) 96px; }
+  .masonry .thumb { margin-bottom: 12px; break-inside: avoid; }
+  .masonry .thumb img { height: auto; }
+
+  /* ───────── C. 묶음별 가로 줄 ───────── */
+  .rows { padding: 4px 0 96px; }
+  .row + .row { margin-top: clamp(28px, 4svh, 48px); }
+  .rowHead { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; padding: 0 var(--gutter); }
+  .rowHead h3 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.18em; line-height: 1; }
+  .rowHead span { font-size: 12px; opacity: 0.5; }
+  .strip {
+    display: flex; gap: 10px; overflow-x: auto; padding: 0 var(--gutter);
+    scroll-snap-type: x mandatory; scroll-padding: 0 var(--gutter); scrollbar-width: none;
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .strip .thumb { flex: none; width: auto; height: clamp(180px, 34svh, 360px); scroll-snap-align: start; }
+
+  /* ───────── 크게 보기 (A, C에서 사진을 누르면) ───────── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 10; display: none;
+    grid-template-rows: auto minmax(0, 1fr); background: #06080b;
+  }
+  .lightbox.isOpen { display: grid; animation: sheet-in 0.2s ease both; }
+  .lbHead { display: flex; align-items: center; gap: 16px; padding: clamp(14px, 2.4vw, 28px) var(--gutter); }
+  .lbStage { position: relative; min-height: 0; padding: 0 clamp(72px, 8vw, 120px) clamp(24px, 5svh, 56px); touch-action: pan-y; }
+  .lbStage img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+
+  /* ───────── B. 크게 보기 + 아래 썸네일 줄 ───────── */
+  .sheet.viewer { display: none; overflow: hidden; }
+  .sheet.viewer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
+  .viewer .head { position: static; background: none; }
+  .vStage { position: relative; min-height: 0; padding: 0 clamp(72px, 8vw, 120px); touch-action: pan-y; }
+  .vStage img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+  .vMeta { display: flex; justify-content: space-between; align-items: baseline; padding: 14px var(--gutter) 0; }
+  .vStrip {
+    display: flex; gap: 6px; overflow-x: auto; padding: 14px var(--gutter) clamp(18px, 3svh, 32px);
+    scrollbar-width: none;
+  }
+  .vStrip::-webkit-scrollbar { display: none; }
+  .vStrip .thumb { flex: none; width: 64px; height: 64px; cursor: pointer; opacity: 0.42; transition: opacity 0.18s ease; }
+  .vStrip .thumb:hover { opacity: 0.8; }
+  .vStrip .thumb:hover img { transform: none; opacity: 1; }
+  .vStrip .thumb[aria-current="true"] { opacity: 1; outline: 2px solid var(--paper); outline-offset: 2px; }
+
+  @media (max-width: 820px) {
+    .mast { left: 16px; bottom: 96px; }
+    .mast svg { width: 50vw; }
+    .mast p { margin-top: 0.8em; font-size: 15px; }
+    .controls { left: 16px; right: 16px; bottom: 20px; }
+    .mvButton { flex: 1; }
+    .head { flex-wrap: wrap; padding: 14px 16px 10px; row-gap: 12px; }
+    .chips { order: 3; flex-basis: 100%; margin: -6px -16px; padding: 6px 16px; }
+    .masonry { columns: 2; column-gap: 6px; padding: 4px 6px 96px; }
+    .masonry .thumb { margin-bottom: 6px; }
+    .rowHead { padding: 0 16px; }
+    .strip { gap: 6px; padding: 0 16px; scroll-padding: 0 16px; }
+    .strip .thumb { height: 220px; }
+    /* 휴대폰에서는 화살표를 숨기고 넘겨서 본다 */
+    .arrow { display: none; }
+    .lbStage, .vStage { padding: 0 0 16px; }
+    .lbHead { padding: 14px 16px; }
+    .vMeta { padding: 12px 16px 0; }
+    .vStrip { padding: 12px 16px 20px; }
+    .vStrip .thumb { width: 52px; height: 52px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sheet[open], .lightbox.isOpen { animation: none; }
+    .thumb img { transition: none; }
+  }
+
+  /* ───────── 시안 비교용 바 (실제 디자인 아님) ───────── */
+  .draftBar {
+    position: fixed; z-index: 20; left: 50%; bottom: 16px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px;
+    background: #ffd84d; color: #1f1e19; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    font-size: 13px; line-height: 1;
+  }
+  .draftBar em { padding: 0 8px 0 10px; font-style: normal; font-weight: 700; }
+  .draftBar button { padding: 8px 12px; border: 0; border-radius: 999px; background: transparent; cursor: pointer; font-weight: 600; white-space: nowrap; }
+  .draftBar button[aria-pressed="true"] { background: #1f1e19; color: #ffd84d; }
+  body.draft .masonry, body.draft .rows { padding-bottom: 120px; }
+  body.draft .vStrip { padding-bottom: 72px; }
+  @media (max-width: 820px) { .draftBar em { display: none; } .draftBar button { padding: 8px 10px; } }
+</style>
+</head>
+<body class="draft">
+
+<div class="page">
+  <img src="../src/assets/photos/editorial-04.jpg" alt="" />
+  <header class="mast">
+    <h1 style="margin:0"><span class="srOnly">원희</span>
+      <svg viewBox="0 0 321 198" aria-hidden="true">
+        <path d="M114.8 6C78 67.6 41.9 129.5 6 191.6" />
+        <path d="M6 191.6C25.2 169 44.9 147.2 65.9 126.3C69.2 123 84.5 105.3 88.9 108C93.4 110.7 89.7 121.3 88.6 125C84.7 138.1 77.8 173.9 103 170.9C117.2 169.2 150.1 121.8 160.1 109.3C164.4 103.9 176.3 93 170.8 85.5C164.1 76.5 149.7 91.1 145.1 96C129.9 112.2 104.3 154.9 132.1 171.2C162.2 188.9 202.2 130.6 215.5 109.8C222.5 98.9 232 84 232.3 70.6C232.4 69.7 232.4 67.3 231 67.1C229.2 66.8 217 85.9 215.1 88.8C203.2 106.9 191.5 125.7 182.6 145.4C179.8 151.5 174.5 161.6 178.1 168.2C179.6 171 182.5 172.6 185.4 173.5C198.7 178 209.2 167.8 217.3 158.6C246.9 124.9 265.5 110.2 279.6 65C280.2 59 282.4 50.8 279.4 45.2C272.8 32.6 240.2 61.9 236.4 69.3C235.1 71.9 236 73.9 236.3 76.5C250.7 72.6 264.9 67.7 279.6 65C272 70.5 226.4 112.5 243.8 114.8C251.6 115.8 273.5 72.5 279.6 65C284.4 57.5 288.4 49.8 296.8 45.6C317.3 35.2 324.1 57.1 298.8 66.2C292.4 65.8 286 65.4 279.6 65C286 65.4 292.4 65.8 298.8 66.2C328.4 78.6 298.6 107.2 272.6 96.5" />
+      </svg>
+    </h1>
+    <p>ILLIT · WONHEE · 2007.06.26</p>
+  </header>
+  <div class="controls">
+    <button type="button" class="roundButton" id="openGallery" aria-label="사진 갤러리 열기" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" />
+        <rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" />
+      </svg>
+    </button>
+    <button type="button" class="roundButton" aria-label="사진 자동 넘김 멈추기">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /></svg>
+    </button>
+    <button type="button" class="mvButton">
+      <span class="playDisc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" /></svg></span>
+      <span><small>NEW MV</small><strong>체포하겠어</strong></span>
+    </button>
+  </div>
+</div>
+
+<!-- A, C 공용 시트 -->
+<dialog class="sheet" id="gridSheet" aria-labelledby="gridTitle">
+  <div class="head">
+    <h2 class="title" id="gridTitle">GALLERY <span data-count></span></h2>
+    <div class="chips" data-chips></div>
+    <button type="button" class="close" data-close aria-label="갤러리 닫기" autofocus>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </div>
+  <div data-body></div>
+
+  <div class="lightbox" id="lightbox" role="group" aria-roledescription="크게 보기">
+    <div class="lbHead">
+      <p class="counter" style="margin:0" aria-live="polite"></p>
+      <span class="series" data-lb-series></span>
+      <button type="button" class="close" data-lb-close aria-label="크게 보기 닫기">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+    <div class="lbStage">
+      <img alt="" />
+      <button type="button" class="arrow prev" data-step="-1" aria-label="이전 사진"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg></button>
+      <button type="button" class="arrow next" data-step="1" aria-label="다음 사진"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg></button>
+    </div>
+  </div>
+</dialog>
+
+<!-- B 시트 -->
+<dialog class="sheet viewer" id="viewerSheet" aria-labelledby="viewerTitle">
+  <div class="head">
+    <h2 class="title" id="viewerTitle">GALLERY <span data-count></span></h2>
+    <div class="chips" data-chips></div>
+    <button type="button" class="close" data-close aria-label="갤러리 닫기" autofocus>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </div>
+  <div class="vStage">
+    <img alt="" />
+    <button type="button" class="arrow prev" data-step="-1" aria-label="이전 사진"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg></button>
+    <button type="button" class="arrow next" data-step="1" aria-label="다음 사진"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg></button>
+  </div>
+  <div>
+    <div class="vMeta"><span class="series" data-v-series></span><p class="counter" style="margin:0" aria-live="polite"></p></div>
+    <div class="vStrip" data-v-strip></div>
+  </div>
+</dialog>
+
+<div class="draftBar" id="draftBar" role="group" aria-label="시안 선택">
+  <em>갤러리 시안</em>
+  <button type="button" data-variant="a" title="원래 비율로 쌓은 사진첩 → 누르면 크게 보기">A 사진첩</button>
+  <button type="button" data-variant="b" title="한 장씩 크게 + 아래 썸네일 줄">B 뷰어</button>
+  <button type="button" data-variant="c" title="촬영 묶음별 가로 줄 → 누르면 크게 보기">C 묶음별</button>
+</div>
+
+<script>
+  const P = '../src/assets/photos/';
+  const SERIES = [
+    { id: 'editorial', label: 'EDITORIAL', files: [['01', 1920, 1440], ['02', 1440, 1920], ['03', 1440, 1920], ['04', 1920, 1281], ['05', 1920, 1281], ['06', 1920, 1440], ['07', 1372, 1920]] },
+    { id: 'diner', label: 'DINER', files: [['01', 1920, 1318], ['02', 1920, 1318], ['03', 1920, 1318], ['04', 1920, 1318], ['05', 1920, 1273], ['06', 1920, 1318]] },
+    { id: 'dental', label: 'DENTAL', files: [['01', 1280, 1920], ['02', 1280, 1920], ['03', 1280, 1920]] },
+    { id: 'fruits', label: 'FRUITS', files: [['01', 1920, 1280], ['02', 1360, 1920], ['03', 1280, 1920], ['04', 1280, 1920]] },
+    { id: 'pastel', label: 'PASTEL', files: [['01', 1536, 1920], ['02', 1536, 1920], ['03', 1920, 1920]] },
+  ];
+  const PHOTOS = SERIES.flatMap((s) => s.files.map(([n, w, h], i) => ({
+    src: `${P}${s.id}-${n}.jpg`, w, h, series: s.id, label: s.label, alt: `원희 · ${s.label} ${i + 1}`,
+  })));
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const counterHtml = (i, total) => `<b>${pad(i + 1)}</b> <span>/ ${pad(total)}</span>`;
+
+  let variant = 'a';
+  let filter = 'all';
+  let lbList = [];
+  let lbIndex = 0;
+  let vIndex = 0;
+
+  const gridSheet = document.getElementById('gridSheet');
+  const viewerSheet = document.getElementById('viewerSheet');
+  const lightbox = document.getElementById('lightbox');
+  const activeSheet = () => (variant === 'b' ? viewerSheet : gridSheet);
+
+  const thumbButton = (photo, onClick, lazy = true) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'thumb';
+    b.style.aspectRatio = `${photo.w} / ${photo.h}`;
+    b.setAttribute('aria-label', `${photo.alt} 크게 보기`);
+    b.innerHTML = `<img src="${photo.src}" alt="" ${lazy ? 'loading="lazy"' : ''} width="${photo.w}" height="${photo.h}" />`;
+    b.addEventListener('click', onClick);
+    return b;
+  };
+
+  function renderChips(root, activeId, onPick) {
+    const chips = root.querySelector('[data-chips]');
+    chips.replaceChildren();
+    const items = [{ id: 'all', label: 'ALL' }, ...SERIES];
+    items.forEach((s) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = s.label;
+      b.setAttribute('aria-pressed', String(s.id === activeId));
+      b.addEventListener('click', () => onPick(s.id));
+      chips.append(b);
+    });
+    root.querySelector('[data-count]').textContent = String(PHOTOS.length);
+  }
+
+  /* ── A / C ── */
+  function renderGrid() {
+    const body = gridSheet.querySelector('[data-body]');
+    body.replaceChildren();
+    gridSheet.scrollTop = 0;
+
+    if (variant === 'a') {
+      renderChips(gridSheet, filter, (id) => { filter = id; renderGrid(); });
+      const list = filter === 'all' ? PHOTOS : PHOTOS.filter((p) => p.series === filter);
+      const wrap = document.createElement('div');
+      wrap.className = 'masonry';
+      list.forEach((p, i) => wrap.append(thumbButton(p, () => openLightbox(list, i))));
+      body.append(wrap);
+      return;
+    }
+
+    // C: 칩을 누르면 해당 묶음으로 스크롤
+    renderChips(gridSheet, 'all', (id) => {
+      if (id === 'all') { gridSheet.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+      const target = body.querySelector(`#row-${id}`);
+      const headH = gridSheet.querySelector('.head').offsetHeight;
+      gridSheet.scrollTo({ top: target.offsetTop - headH, behavior: 'smooth' });
+    });
+    const rows = document.createElement('div');
+    rows.className = 'rows';
+    SERIES.forEach((s) => {
+      const list = PHOTOS.filter((p) => p.series === s.id);
+      const row = document.createElement('section');
+      row.className = 'row';
+      row.id = `row-${s.id}`;
+      row.innerHTML = `<div class="rowHead"><h3>${s.label}</h3><span>${list.length}</span></div>`;
+      const strip = document.createElement('div');
+      strip.className = 'strip';
+      list.forEach((p, i) => strip.append(thumbButton(p, () => openLightbox(list, i))));
+      row.append(strip);
+      rows.append(row);
+    });
+    body.append(rows);
+  }
+
+  function openLightbox(list, i) {
+    lbList = list;
+    lbIndex = i;
+    lightbox.classList.add('isOpen');
+    renderLightbox();
+    lightbox.querySelector('[data-lb-close]').focus();
+  }
+  function closeLightbox() { lightbox.classList.remove('isOpen'); }
+  function renderLightbox() {
+    const p = lbList[lbIndex];
+    const img = lightbox.querySelector('img');
+    img.src = p.src;
+    img.alt = p.alt;
+    lightbox.querySelector('.counter').innerHTML = counterHtml(lbIndex, lbList.length);
+    lightbox.querySelector('[data-lb-series]').textContent = p.label;
+  }
+  function stepLightbox(d) { lbIndex = (lbIndex + d + lbList.length) % lbList.length; renderLightbox(); }
+
+  /* ── B ── */
+  function renderViewer() {
+    const strip = viewerSheet.querySelector('[data-v-strip]');
+    strip.replaceChildren();
+    PHOTOS.forEach((p, i) => {
+      const b = thumbButton(p, () => { vIndex = i; updateViewer(); });
+      b.style.aspectRatio = '';
+      b.setAttribute('aria-label', `${p.alt} 보기`);
+      strip.append(b);
+    });
+    updateViewer();
+  }
+  function updateViewer() {
+    const p = PHOTOS[vIndex];
+    const img = viewerSheet.querySelector('.vStage img');
+    img.src = p.src;
+    img.alt = p.alt;
+    viewerSheet.querySelector('.counter').innerHTML = counterHtml(vIndex, PHOTOS.length);
+    viewerSheet.querySelector('[data-v-series]').textContent = p.label;
+    renderChips(viewerSheet, p.series, (id) => {
+      vIndex = id === 'all' ? 0 : PHOTOS.findIndex((x) => x.series === id);
+      updateViewer();
+    });
+    viewerSheet.querySelectorAll('.vStrip .thumb').forEach((t, i) => {
+      t.setAttribute('aria-current', String(i === vIndex));
+      if (i === vIndex) t.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    });
+  }
+  function stepViewer(d) { vIndex = (vIndex + d + PHOTOS.length) % PHOTOS.length; updateViewer(); }
+
+  /* ── 열고 닫기 ── */
+  const draftBar = document.getElementById('draftBar');
+  function openSheet() {
+    const sheet = activeSheet();
+    if (variant === 'b') renderViewer(); else renderGrid();
+    if (!sheet.open) sheet.showModal();
+    sheet.append(draftBar); // 시안 바를 모달 위에서도 보이게
+  }
+  function closeSheet(sheet) {
+    closeLightbox();
+    if (sheet.open) sheet.close();
+  }
+  [gridSheet, viewerSheet].forEach((sheet) => {
+    sheet.querySelector('[data-close]').addEventListener('click', () => closeSheet(sheet));
+    sheet.addEventListener('close', () => { document.body.append(draftBar); document.getElementById('openGallery').focus(); });
+    // Esc: 크게 보기가 열려 있으면 그것부터 닫는다
+    sheet.addEventListener('cancel', (e) => {
+      if (lightbox.classList.contains('isOpen')) { e.preventDefault(); closeLightbox(); }
+    });
+  });
+  document.getElementById('openGallery').addEventListener('click', openSheet);
+  lightbox.querySelector('[data-lb-close]').addEventListener('click', closeLightbox);
+  lightbox.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => stepLightbox(Number(b.dataset.step))));
+  viewerSheet.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => stepViewer(Number(b.dataset.step))));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const d = e.key === 'ArrowLeft' ? -1 : 1;
+    if (lightbox.classList.contains('isOpen')) stepLightbox(d);
+    else if (viewerSheet.open) stepViewer(d);
+  });
+
+  // 휴대폰: 좌우로 밀어서 넘기기
+  function swipe(el, onStep) {
+    let x0 = null;
+    el.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+    el.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 50) onStep(dx < 0 ? 1 : -1);
+    });
+  }
+  swipe(lightbox.querySelector('.lbStage'), stepLightbox);
+  swipe(viewerSheet.querySelector('.vStage'), stepViewer);
+
+  /* ── 시안 전환 ── */
+  function setVariant(v) {
+    const wasOpen = gridSheet.open || viewerSheet.open;
+    if (wasOpen) { closeLightbox(); gridSheet.open && gridSheet.close(); viewerSheet.open && viewerSheet.close(); }
+    variant = v;
+    filter = 'all';
+    draftBar.querySelectorAll('[data-variant]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.variant === v)));
+    history.replaceState(null, '', `#${v}`);
+    openSheet();
+  }
+  draftBar.querySelectorAll('[data-variant]').forEach((b) => b.addEventListener('click', () => setVariant(b.dataset.variant)));
+  setVariant(['a', 'b', 'c'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'a');
+</script>
+</body>
+</html>
