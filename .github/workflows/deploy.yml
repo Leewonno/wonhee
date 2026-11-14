@@ -25,6 +25,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # GA4 측정 ID. 저장소 Settings → Secrets and variables → Actions → Variables 에 등록
+          VITE_GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
       # SPA fallback: 직접 /neon 등으로 접속해도 라우터가 처리하도록
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
