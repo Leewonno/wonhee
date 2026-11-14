@@ -155,6 +155,8 @@ export default function MagazinePage() {
   const [held, setHeld] = useState(false)
   const [isHidden, setIsHidden] = useState(() => document.hidden)
   const [isMvOpen, setIsMvOpen] = useState(false)
+  // 움직임 줄이기를 켠 사용자는 멈춘 상태로 시작한다. 버튼으로 직접 다시 켤 수 있다
+  const [isPaused, setIsPaused] = useState(() => window.matchMedia(REDUCED_MOTION_QUERY).matches)
   const dragFromX = useRef<number | null>(null)
 
   const move = useCallback((delta: number) => {
@@ -163,11 +165,10 @@ export default function MagazinePage() {
 
   // 자동 넘김: 인덱스가 바뀔 때마다 5초 카운트다운을 새로 시작한다
   useEffect(() => {
-    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches
-    if (held || isHidden || isMvOpen || reducedMotion) return
+    if (isPaused || held || isHidden || isMvOpen) return
     const timer = window.setTimeout(() => move(1), AUTO_ADVANCE_MS)
     return () => window.clearTimeout(timer)
-  }, [index, held, isHidden, isMvOpen, move])
+  }, [index, isPaused, held, isHidden, isMvOpen, move])
 
   useEffect(() => {
     if (isMvOpen) return
@@ -213,7 +214,7 @@ export default function MagazinePage() {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerCancel}
         >
-          <div className={s.slides} id="slides" aria-live={held ? 'polite' : 'off'}>
+          <div className={s.slides} id="slides" aria-live={isPaused || held ? 'polite' : 'off'}>
             {SLIDES.map((slide, slideIndex) => {
               const isActive = slideIndex === index
               const className = [
@@ -283,17 +284,31 @@ export default function MagazinePage() {
         <p>ILLIT · WONHEE · 2007.06.26</p>
       </header>
 
-      <button type="button" className={s.mvButton} onClick={() => setIsMvOpen(true)}>
-        <span className={s.playDisc} aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M6 4l14 8-14 8z" />
+      <div className={s.controls}>
+        <button
+          type="button"
+          className={s.autoplayToggle}
+          aria-controls="slides"
+          aria-label={isPaused ? '사진 자동 넘김 다시 시작' : '사진 자동 넘김 멈추기'}
+          onClick={() => setIsPaused((paused) => !paused)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d={isPaused ? 'M7 4.5l12 7.5-12 7.5z' : 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z'} />
           </svg>
-        </span>
-        <span>
-          <small>NEW MV</small>
-          <strong>체포하겠어</strong>
-        </span>
-      </button>
+        </button>
+
+        <button type="button" className={s.mvButton} onClick={() => setIsMvOpen(true)}>
+          <span className={s.playDisc} aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 4l14 8-14 8z" />
+            </svg>
+          </span>
+          <span>
+            <small>NEW MV</small>
+            <strong>체포하겠어</strong>
+          </span>
+        </button>
+      </div>
 
       <MvDialog open={isMvOpen} onClose={() => setIsMvOpen(false)} />
     </div>
