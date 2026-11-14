@@ -2,7 +2,7 @@
 
 아일릿(ILLIT) 멤버 원희의 팬사이트입니다.
 
-**사이트:** https://leewonno.github.io/wonhee/
+**사이트:** https://woniguinea.com/
 
 ## 기술 스택
 
