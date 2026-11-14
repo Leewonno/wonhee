@@ -144,7 +144,7 @@
   align-items: center;
   gap: 10px;
 }
-.autoplayToggle {
+.roundButton {
   display: grid;
   place-items: center;
   flex: none;
@@ -159,8 +159,8 @@
   cursor: pointer;
   transition: background-color 0.18s ease;
 }
-.autoplayToggle:hover { background: rgba(12, 16, 22, 0.72); }
-.autoplayToggle svg { width: 20px; height: 20px; fill: currentColor; }
+.roundButton:hover { background: rgba(12, 16, 22, 0.72); }
+.roundButton svg { width: 20px; height: 20px; fill: currentColor; }
 
 /* 신곡 MV: 누르면 전체 화면 플레이어 */
 .mvButton {
@@ -247,5 +247,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .sign path { animation: none; }
-  .slide, .arrow, .autoplayToggle, .mvButton { transition: none; }
+  .slide, .arrow, .roundButton, .mvButton { transition: none; }
 }
