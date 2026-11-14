@@ -10,6 +10,7 @@ import s from "./MagazinePage.module.css";
 import GalleryDialog from "./GalleryDialog.tsx";
 import MvDialog from "./MvDialog.tsx";
 import { SLIDES, type Photo } from "./heroSlides.ts";
+import { trackEvent } from "@/lib/analytics.ts";
 
 const AUTO_ADVANCE_MS = 3000;
 const SWIPE_THRESHOLD_PX = 40;
@@ -207,7 +208,10 @@ export default function MagazinePage() {
           className={s.roundButton}
           aria-label="사진 갤러리 열기"
           aria-haspopup="dialog"
-          onClick={() => setIsGalleryOpen(true)}
+          onClick={() => {
+            setIsGalleryOpen(true);
+            trackEvent({ name: "open_gallery" });
+          }}
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="4" y="4" width="7" height="7" rx="1.5" />
@@ -240,7 +244,10 @@ export default function MagazinePage() {
         <button
           type="button"
           className={s.mvButton}
-          onClick={() => setIsMvOpen(true)}
+          onClick={() => {
+            setIsMvOpen(true);
+            trackEvent({ name: "open_mv" });
+          }}
         >
           <span className={s.playDisc} aria-hidden="true">
             <svg viewBox="0 0 24 24">

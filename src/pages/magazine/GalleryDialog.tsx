@@ -10,6 +10,7 @@ import {
 } from "react";
 import s from "./GalleryDialog.module.css";
 import { GALLERY_PHOTOS, type GalleryPhoto } from "./galleryPhotos.ts";
+import { trackEvent } from "@/lib/analytics.ts";
 
 const ALL = "ALL";
 const SWIPE_THRESHOLD_PX = 50;
@@ -328,6 +329,7 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
 
   const pickFilter = (series: string) => {
     setFilter(series);
+    trackEvent({ name: "filter_gallery", params: { series } });
     dialogRef.current?.scrollTo({ top: 0 });
   };
 
@@ -421,7 +423,13 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
                     data-index={index}
                     data-loaded={loaded.has(thumbnail.src)}
                     aria-label={`${altOf(photo, index)} 크게 보기`}
-                    onClick={() => setViewerIndex(index)}
+                    onClick={() => {
+                      setViewerIndex(index);
+                      trackEvent({
+                        name: "view_photo",
+                        params: { series: photo.series ?? "NONE" },
+                      });
+                    }}
                   >
                     {open && (
                       <img
