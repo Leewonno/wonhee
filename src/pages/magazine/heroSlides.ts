@@ -156,7 +156,8 @@ export const SLIDES: readonly Slide[] = [
     alt: "꽃무늬 커튼 사이로 레이스 천을 대고 얼굴을 내민 원희를 좌우로 이어 붙인 사진",
     width: 1920,
     height: 1440,
-    focus: { x: 0.5, y: 0.51 },
+    // 얼굴이 두 개라 가운데를 잡으면 폰에서 커튼만 보인다. 눈을 뜬 왼쪽 얼굴을 잡는다
+    focus: { x: 0.25, y: 0.49 },
   }),
 
   // QUIET Ver.
