@@ -128,11 +128,36 @@
   white-space: nowrap;
 }
 .mast p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 1.1em 0 0 0.3em;
-  max-width: 22em;
   font: 400 clamp(17px, 1.5vw, 22px) / 1.5 var(--body);
+  white-space: nowrap;
   text-shadow: 0 1px 10px rgba(10, 14, 20, 0.6);
 }
+/* 생년월일 옆 프로필 버튼. 사인 영역은 눌리지 않게 막혀 있어서 버튼만 다시 눌리게 한다 */
+.profileButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(246, 241, 229, 0.18);
+  backdrop-filter: blur(8px);
+  color: var(--paper);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.18s ease;
+}
+.profileButton:hover { background: rgba(246, 241, 229, 0.32); }
+.profileButton svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+/* 보이는 크기는 작아도 손가락으로 누르는 칸은 44px */
+.profileButton::before { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 
 /* 오른쪽 아래: 자동 넘김 멈춤/재생 + 신곡 MV 버튼 */
 .controls {
@@ -241,9 +266,9 @@
   .controls { left: 16px; right: 16px; bottom: 20px; }
   .mvButton { flex: 1; }
   .mast h1 { width: 50vw; }
-  .mast p { margin-top: 0.8em; max-width: 15em; font-size: 15px; }
+  .mast p { margin-top: 0.8em; font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sign path { animation: none; }
-  .slide, .arrow, .roundButton, .mvButton { transition: none; }
+  .slide, .arrow, .roundButton, .mvButton, .profileButton { transition: none; }
 }
