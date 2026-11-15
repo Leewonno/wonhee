@@ -130,7 +130,6 @@ export default function MagazinePage() {
 
   return (
     <div className={s.page}>
-      <title>워니기니</title>
       <main>
         <section
           className={s.stage}
