@@ -230,11 +230,12 @@ export default function MagazinePage() {
             trackEvent({ name: "open_gallery" });
           }}
         >
+          {/* 사진 액자: 재생·멈춤 아이콘처럼 꽉 채운 면에 산과 해를 뚫어 그린다 */}
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="4" y="4" width="7" height="7" rx="1.5" />
-            <rect x="13" y="4" width="7" height="7" rx="1.5" />
-            <rect x="4" y="13" width="7" height="7" rx="1.5" />
-            <rect x="13" y="13" width="7" height="7" rx="1.5" />
+            <path
+              fillRule="evenodd"
+              d="M5 3.5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM5 18.5h14l-4.5-6-3 3.5-2.5-3zM15.5 10.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2z"
+            />
           </svg>
         </button>
 
