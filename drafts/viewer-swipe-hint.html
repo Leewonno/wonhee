@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>시안 · 크게 보기 넘기기 안내 — 원희 팬사이트</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+<style>
+  :root {
+    --wall: #2a3038;
+    --paper: #f6f1e5;
+    --ink: #1f1e19;
+    --body: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
+    /* 안내 타이밍: 크게 보기가 뜬 뒤 잠깐 기다렸다가 나타나서, 머물고, 사라진다 */
+    --hint-delay: 0.3s;
+    --hint-in: 0.3s;
+    --hint-hold: 2.2s;
+    --hint-out: 0.45s;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    background: var(--wall);
+    color: var(--paper);
+    font: 15px/1.7 var(--body);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  button { font: inherit; color: inherit; }
+  .intro { max-width: 1240px; margin: 0 auto 36px; }
+  .intro h1 { margin: 0 0 6px; font-size: 22px; font-weight: 700; }
+  .intro p { margin: 0; opacity: 0.72; }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px 32px;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .option { width: 360px; }
+  .option h2 { margin: 18px 0 4px; font-size: 16px; font-weight: 700; }
+  .option h2 b { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-right: 8px; border-radius: 50%; background: var(--paper); color: var(--ink); font-size: 13px; }
+  .option p { margin: 0 0 12px; font-size: 14px; opacity: 0.72; }
+  .replay {
+    padding: 8px 16px;
+    border: 1px solid rgba(246, 241, 229, 0.3);
+    border-radius: 999px;
+    background: transparent;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .replay:hover { border-color: var(--paper); }
+
+  /* ───────── 휴대폰 틀 ───────── */
+  .phone {
+    position: relative;
+    width: 360px;
+    height: 740px;
+    border-radius: 40px;
+    border: 10px solid #111418;
+    background: #06080b;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  /* ───────── 크게 보기 화면 (실제 .viewer 모바일 모습) ───────── */
+  .viewer {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .viewerHead { display: flex; align-items: center; gap: 16px; padding: 14px 16px; }
+  .counter { margin: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .counter b { font-weight: 600; }
+  .counter span { opacity: 0.56; }
+  .series { font-size: 12px; font-weight: 600; opacity: 0.72; }
+  .close {
+    display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: auto;
+    padding: 0; border: 0; border-radius: 50%; background: rgba(246, 241, 229, 0.12); cursor: pointer;
+  }
+  .close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+  .stage {
+    position: relative;
+    min-height: 0;
+    padding: 0 0 16px;
+    touch-action: pan-y;
+    user-select: none;
+    cursor: grab;
+  }
+  .stage img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ───────── 안내 공통 ─────────
+     사진 위에 겹쳐 있지만 눌리지 않아서, 안내가 떠 있는 동안에도 바로 밀어서 넘길 수 있다 */
+  .hint {
+    position: absolute;
+    inset: 0 0 16px;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .hint[data-show="true"] {
+    animation: hint-life calc(var(--hint-in) + var(--hint-hold) + var(--hint-out)) ease var(--hint-delay) both;
+  }
+  /* 손을 대면 남은 시간과 상관없이 바로 사라진다 */
+  .hint[data-show="dismissed"] { opacity: 0; transition: opacity 0.2s ease; }
+  @keyframes hint-life {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .hint svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── A. 화살표 + 문구 알약 ── */
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    background: rgba(8, 10, 14, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .pill svg { width: 18px; height: 18px; stroke-width: 2.4; }
+  .hint[data-show="true"] .pill .left  { animation: nudge-left 1.1s ease-in-out calc(var(--hint-delay) + 0.2s) 2; }
+  .hint[data-show="true"] .pill .right { animation: nudge-right 1.1s ease-in-out calc(var(--hint-delay) + 0.2s) 2; }
+  @keyframes nudge-left  { 0%, 100% { transform: none; } 50% { transform: translateX(-5px); } }
+  @keyframes nudge-right { 0%, 100% { transform: none; } 50% { transform: translateX(5px); } }
+
+  /* ── B. 손가락이 옆으로 밀어 보이는 동작 ── */
+  .disc {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background: rgba(8, 10, 14, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .disc .track {
+    position: absolute;
+    top: 50%;
+    left: 22px;
+    right: 22px;
+    height: 2px;
+    margin-top: 18px;
+    border-radius: 2px;
+    background: linear-gradient(to right, transparent, rgba(246, 241, 229, 0.5), transparent);
+  }
+  .disc svg { width: 44px; height: 44px; stroke-width: 1.7; }
+  .hint[data-show="true"] .disc svg { animation: swipe-hand 1.2s cubic-bezier(0.45, 0, 0.3, 1) calc(var(--hint-delay) + 0.15s) 2; }
+  @keyframes swipe-hand {
+    0%   { transform: translateX(14px) rotate(6deg); }
+    55%  { transform: translateX(-16px) rotate(-6deg); }
+    100% { transform: translateX(14px) rotate(6deg); }
+  }
+
+  /* ── C. 사진 양옆 가장자리 화살표 (데스크톱 화살표 자리를 잠깐 보여주는 느낌) ── */
+  .edges {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px;
+  }
+  .edge {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(8, 10, 14, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .edge svg { width: 20px; height: 20px; stroke-width: 2.4; }
+  .hint[data-show="true"] .edge.left  { animation: nudge-left 1.1s ease-in-out calc(var(--hint-delay) + 0.2s) 2; }
+  .hint[data-show="true"] .edge.right { animation: nudge-right 1.1s ease-in-out calc(var(--hint-delay) + 0.2s) 2; }
+
+  /* 움직임 줄이기를 켠 사람에게는 흔들림 없이 나타났다 사라지기만 한다 */
+  @media (prefers-reduced-motion: reduce) {
+    .hint[data-show="true"] * { animation: none !important; }
+  }
+
+  .notes { max-width: 760px; margin: 56px auto 0; padding: 24px 28px; border-radius: 16px; background: rgba(246, 241, 229, 0.06); }
+  .notes h2 { margin: 0 0 10px; font-size: 16px; }
+  .notes ul { margin: 0; padding-left: 20px; }
+  .notes li { margin: 4px 0; opacity: 0.82; }
+</style>
+</head>
+<body>
+  <header class="intro">
+    <h1>크게 보기 · 옆으로 넘기기 안내</h1>
+    <p>모바일에서 목록 사진을 눌러 크게 볼 때, 첫 사진 위에 약 3초 동안 떴다가 사라지는 안내. 세 가지 안을 나란히 둠. 휴대폰 화면 안에서 마우스로 끌면 실제로 넘어가고, 그러면 안내도 바로 사라짐.</p>
+  </header>
+
+  <main class="options">
+    <section class="option" data-variant="a">
+      <div class="phone"></div>
+      <h2><b>A</b>화살표 + 문구</h2>
+      <p>‹ 옆으로 밀어서 넘기기 › 알약. 가장 분명하게 읽히고, 처음 보는 사람도 바로 앎.</p>
+      <button type="button" class="replay">다시 보기</button>
+    </section>
+
+    <section class="option" data-variant="b">
+      <div class="phone"></div>
+      <h2><b>B</b>손가락 동작</h2>
+      <p>손가락이 좌우로 한 번씩 밀어 보임. 글자 없이 동작으로만 알려서 사진을 덜 가림.</p>
+      <button type="button" class="replay">다시 보기</button>
+    </section>
+
+    <section class="option" data-variant="c">
+      <div class="phone"></div>
+      <h2><b>C</b>양옆 화살표</h2>
+      <p>사진 양 가장자리에 화살표가 잠깐 떴다 사라짐. 데스크톱의 좌우 버튼과 모양이 같아 통일감이 있음.</p>
+      <button type="button" class="replay">다시 보기</button>
+    </section>
+  </main>
+
+  <section class="notes">
+    <h2>동작 정리 (세 안 공통)</h2>
+    <ul>
+      <li>크게 보기가 열리고 0.3초 뒤에 나타나서 약 2.2초 머물고 사라짐 (총 3초 정도).</li>
+      <li>안내는 눌리지 않게 겹쳐 있어서, 떠 있는 동안에도 바로 밀어서 넘길 수 있음. 손을 대면 즉시 사라짐.</li>
+      <li>사진이 한 장뿐인 묶음이면 띄우지 않음. 휴대폰 화면(820px 이하)에서만 띄움.</li>
+      <li>움직임 줄이기 설정을 켠 사람에게는 흔들림 없이 나타났다 사라지기만 함.</li>
+    </ul>
+  </section>
+
+<script>
+  const PHOTOS = [
+    "https://phinf.wevpstatic.net/MjAyNjEwMDZfMjE5/MDAxNzkxMjU1Nzk2Nzc0.ZmjBl0C0jKqHXUhxrYIALbZoZB8Y4fMcuHdBqNFX8TYg.cHNKyKB-Q3O_j5inmsJYwwA0OD19X29sG0PTQEcfgu8g.JPEG/996abff0-850c-4c41-81d3-37638cb4e812.jpeg?type=e1280",
+  ];
+  const TOTAL = 135;
+  const SWIPE_THRESHOLD_PX = 50;
+
+  const chevronLeft = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  const chevronRight = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+  const hand =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12V4.6a1.6 1.6 0 0 1 3.2 0V11"/>' +
+    '<path d="M12.2 10.2a1.6 1.6 0 0 1 3.2 0V11.5"/><path d="M15.4 11a1.6 1.6 0 0 1 3.2 0v3.6a6.4 6.4 0 0 1-6.4 6.4h-.6a6.4 6.4 0 0 1-5.1-2.6l-2.4-3.3a1.6 1.6 0 0 1 2.5-2L9 15.4"/></svg>';
+
+  const HINTS = {
+    a: `<div class="pill"><span class="left">${chevronLeft}</span>옆으로 밀어서 넘기기<span class="right">${chevronRight}</span></div>`,
+    b: `<div class="disc"><span class="track"></span>${hand}</div>`,
+    c: `<div class="edges"><span class="edge left">${chevronLeft}</span><span class="edge right">${chevronRight}</span></div>`,
+  };
+
+  const pad = (value) => String(value).padStart(2, "0");
+
+  document.querySelectorAll(".option").forEach((option) => {
+    const variant = option.dataset.variant;
+    const phone = option.querySelector(".phone");
+    phone.innerHTML = `
+      <div class="viewer" role="group" aria-label="사진 크게 보기">
+        <div class="viewerHead">
+          <p class="counter"><b>01</b> <span>/ ${TOTAL}</span></p>
+          <span class="series">EDITORIAL</span>
+          <button type="button" class="close" aria-label="크게 보기 닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <div class="stage">
+          <img src="${PHOTOS[0]}" alt="" referrerpolicy="no-referrer" />
+          <div class="hint" aria-hidden="true">${HINTS[variant]}</div>
+        </div>
+      </div>`;
+
+    const stage = phone.querySelector(".stage");
+    const hint = phone.querySelector(".hint");
+    const counter = phone.querySelector(".counter b");
+    const img = phone.querySelector(".stage img");
+    let index = 0;
+    let fromX = null;
+
+    const show = () => {
+      hint.dataset.show = "false";
+      void hint.offsetWidth; // 애니메이션을 처음부터 다시 돌린다
+      hint.dataset.show = "true";
+    };
+    const dismiss = () => {
+      if (hint.dataset.show === "true") hint.dataset.show = "dismissed";
+    };
+    const step = (delta) => {
+      index = (index + delta + TOTAL) % TOTAL;
+      counter.textContent = pad(index + 1);
+      img.style.opacity = "0.4";
+      setTimeout(() => (img.style.opacity = "1"), 160);
+    };
+
+    stage.addEventListener("pointerdown", (event) => {
+      fromX = event.clientX;
+      dismiss();
+    });
+    stage.addEventListener("pointerup", (event) => {
+      if (fromX === null) return;
+      const moved = event.clientX - fromX;
+      fromX = null;
+      if (Math.abs(moved) >= SWIPE_THRESHOLD_PX) step(moved < 0 ? 1 : -1);
+    });
+    stage.addEventListener("pointercancel", () => (fromX = null));
+
+    option.querySelector(".replay").addEventListener("click", () => {
+      index = 0;
+      counter.textContent = "01";
+      show();
+    });
+
+    show();
+  });
+</script>
+</body>
+</html>

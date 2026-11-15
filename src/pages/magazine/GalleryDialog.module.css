@@ -224,6 +224,60 @@
 .prev { left: clamp(10px, 1.6vw, 26px); }
 .next { right: clamp(10px, 1.6vw, 26px); }
 
+/*
+  밀어서 넘기기 안내: 크게 보기를 처음 열 때 사진 위에 3초쯤 떴다가 사라진다.
+  눌리지 않게 겹쳐 있어서, 떠 있는 동안에도 바로 밀어서 넘길 수 있다
+*/
+.swipeHint {
+  position: absolute;
+  inset: 0 0 16px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: swipe-hint-life 2.95s ease 0.3s both;
+}
+@keyframes swipe-hint-life {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.swipeDisc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: rgba(8, 10, 14, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.swipeTrack {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  right: 22px;
+  height: 2px;
+  margin-top: 18px;
+  border-radius: 2px;
+  background: linear-gradient(to right, transparent, rgba(246, 241, 229, 0.5), transparent);
+}
+.swipeDisc svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: swipe-hand 1.2s cubic-bezier(0.45, 0, 0.3, 1) 0.45s 2;
+}
+@keyframes swipe-hand {
+  0%, 100% { transform: translateX(14px) rotate(6deg); }
+  55% { transform: translateX(-16px) rotate(-6deg); }
+}
+
 @media (max-width: 820px) {
   .head { flex-wrap: wrap; row-gap: 12px; padding: 14px 16px 10px; }
   .chipBar { order: 3; flex-basis: 100%; }
@@ -237,4 +291,6 @@
 @media (prefers-reduced-motion: reduce) {
   .sheet[open], .viewer { animation: none; }
   .tile img, .chip, .chipArrow, .full { transition: none; }
+  /* 손가락은 움직이지 않고, 안내가 나타났다 사라지기만 한다 */
+  .swipeDisc svg { animation: none; }
 }
