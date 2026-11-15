@@ -9,7 +9,9 @@ import {
 import s from "./MagazinePage.module.css";
 import GalleryDialog from "./GalleryDialog.tsx";
 import MvDialog from "./MvDialog.tsx";
+import ProfileDialog from "./ProfileDialog.tsx";
 import { NARROW_SLIDES, SLIDES, type Photo } from "./heroSlides.ts";
+import { SIGN_STROKE_DOWN, SIGN_STROKE_NAME, SIGN_VIEWBOX } from "./sign.ts";
 import { trackEvent } from "@/lib/analytics.ts";
 import { useMediaQuery } from "@/lib/useMediaQuery.ts";
 
@@ -70,7 +72,8 @@ export default function MagazinePage() {
   const [isHidden, setIsHidden] = useState(() => document.hidden);
   const [isMvOpen, setIsMvOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const isDialogOpen = isMvOpen || isGalleryOpen;
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const isDialogOpen = isMvOpen || isGalleryOpen || isProfileOpen;
   // 움직임 줄이기를 켠 사용자는 멈춘 상태로 시작한다. 버튼으로 직접 다시 켤 수 있다
   const [isPaused, setIsPaused] = useState(
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
@@ -203,20 +206,36 @@ export default function MagazinePage() {
       <header className={s.mast}>
         <h1 className={s.sign}>
           <span className={s.srOnly}>원희</span>
-          <svg viewBox="0 0 321 198" aria-hidden="true" focusable="false">
+          <svg viewBox={SIGN_VIEWBOX} aria-hidden="true" focusable="false">
             <path
               className={s.s1}
               pathLength="1"
-              d="M114.8 6C78 67.6 41.9 129.5 6 191.6"
+              d={SIGN_STROKE_DOWN}
             />
             <path
               className={s.s2}
               pathLength="1"
-              d="M6 191.6C25.2 169 44.9 147.2 65.9 126.3C69.2 123 84.5 105.3 88.9 108C93.4 110.7 89.7 121.3 88.6 125C84.7 138.1 77.8 173.9 103 170.9C117.2 169.2 150.1 121.8 160.1 109.3C164.4 103.9 176.3 93 170.8 85.5C164.1 76.5 149.7 91.1 145.1 96C129.9 112.2 104.3 154.9 132.1 171.2C162.2 188.9 202.2 130.6 215.5 109.8C222.5 98.9 232 84 232.3 70.6C232.4 69.7 232.4 67.3 231 67.1C229.2 66.8 217 85.9 215.1 88.8C203.2 106.9 191.5 125.7 182.6 145.4C179.8 151.5 174.5 161.6 178.1 168.2C179.6 171 182.5 172.6 185.4 173.5C198.7 178 209.2 167.8 217.3 158.6C246.9 124.9 265.5 110.2 279.6 65C280.2 59 282.4 50.8 279.4 45.2C272.8 32.6 240.2 61.9 236.4 69.3C235.1 71.9 236 73.9 236.3 76.5C250.7 72.6 264.9 67.7 279.6 65C272 70.5 226.4 112.5 243.8 114.8C251.6 115.8 273.5 72.5 279.6 65C284.4 57.5 288.4 49.8 296.8 45.6C317.3 35.2 324.1 57.1 298.8 66.2C292.4 65.8 286 65.4 279.6 65C286 65.4 292.4 65.8 298.8 66.2C328.4 78.6 298.6 107.2 272.6 96.5"
+              d={SIGN_STROKE_NAME}
             />
           </svg>
         </h1>
-        <p>ILLIT · WONHEE · 2007.06.26</p>
+        <p>
+          ILLIT · WONHEE · 2007.06.26
+          <button
+            type="button"
+            className={s.profileButton}
+            aria-label="원희 프로필 보기"
+            aria-haspopup="dialog"
+            onClick={() => {
+              setIsProfileOpen(true);
+              trackEvent({ name: "open_profile" });
+            }}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 4l8 8-8 8" />
+            </svg>
+          </button>
+        </p>
       </header>
 
       <div className={s.controls}>
@@ -283,6 +302,10 @@ export default function MagazinePage() {
       <GalleryDialog
         open={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
+      />
+      <ProfileDialog
+        open={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
       />
     </div>
   );

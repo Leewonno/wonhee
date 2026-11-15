@@ -19,6 +19,7 @@ const IS_ENABLED =
 export type AnalyticsEvent =
   | { readonly name: "open_gallery" }
   | { readonly name: "open_mv" }
+  | { readonly name: "open_profile" }
   | { readonly name: "filter_gallery"; readonly params: { readonly series: string } }
   | { readonly name: "view_photo"; readonly params: { readonly series: string } };
 
