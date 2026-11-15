@@ -88,7 +88,7 @@
 
 .section { margin-top: 24px; }
 /* 아래 첫 줄에 위 여백(7px)이 있어서 제목 아래는 2px만 둔다 */
-.section h3 { margin: 0 0 2px; font-size: 11px; font-weight: 700; line-height: 1.5; letter-spacing: 0.16em; opacity: 0.5; }
+.section h3 { margin: 0 0 2px; font-size: 12px; font-weight: 400; line-height: 1.5; opacity: 0.5; }
 
 /* 걸어온 길: 세로 선 위에 네 꼭지 별(✦) */
 .timeline {
@@ -123,7 +123,7 @@
 .timeline li.skip { height: 0; padding: 0; }
 .timeline li.skip::after { content: ""; position: absolute; left: -20px; top: -34px; bottom: -8px; width: 6px; background: var(--card); }
 .timeline li.skip i { position: absolute; z-index: 1; left: -18px; width: 2px; background: rgba(246, 241, 229, var(--a, 0.18)); }
-.timeline time { display: block; font-size: 12px; font-weight: 600; line-height: 1.5; letter-spacing: 0.04em; opacity: 0.5; font-variant-numeric: tabular-nums; }
+.timeline time { display: block; font-size: 12px; font-weight: 600; line-height: 1.5; opacity: 0.5; font-variant-numeric: tabular-nums; }
 .timeline p { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.45; }
 .detail { display: block; font-size: 13px; font-weight: 400; opacity: 0.6; }
 
