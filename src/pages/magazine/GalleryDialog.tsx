@@ -11,6 +11,7 @@ import {
 import s from "./GalleryDialog.module.css";
 import { GALLERY_PHOTOS, type GalleryPhoto } from "./galleryPhotos.ts";
 import { trackEvent } from "@/lib/analytics.ts";
+import { useCloseOnBack } from "@/lib/useCloseOnBack.ts";
 
 const ALL = "ALL";
 const SWIPE_THRESHOLD_PX = 50;
@@ -281,6 +282,10 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
     setViewerIndex(null);
     onClose();
   };
+
+  // 뒤로가기는 크게 보기가 열려 있으면 그것부터, 그다음 갤러리를 닫는다
+  useCloseOnBack(open, handleClose);
+  useCloseOnBack(viewerIndex !== null, closeViewer);
 
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLDialogElement>) => {
     if (viewerIndex === null) return;

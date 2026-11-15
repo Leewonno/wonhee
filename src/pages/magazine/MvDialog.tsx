@@ -1,5 +1,6 @@
 import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import s from './MagazinePage.module.css'
+import { useCloseOnBack } from '@/lib/useCloseOnBack.ts'
 
 const MV_TITLE = "체포하겠어 (You're Under Arrest)"
 const MV_EMBED_URL = 'https://www.youtube.com/embed/V2V9-9VhYJo?autoplay=1&rel=0&playsinline=1'
@@ -11,6 +12,7 @@ interface MvDialogProps {
 
 export default function MvDialog({ open, onClose }: MvDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  useCloseOnBack(open, onClose)
 
   useEffect(() => {
     const dialog = dialogRef.current
