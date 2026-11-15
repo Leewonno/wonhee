@@ -9,12 +9,15 @@ import {
 import s from "./MagazinePage.module.css";
 import GalleryDialog from "./GalleryDialog.tsx";
 import MvDialog from "./MvDialog.tsx";
-import { SLIDES, type Photo } from "./heroSlides.ts";
+import { NARROW_SLIDES, SLIDES, type Photo } from "./heroSlides.ts";
 import { trackEvent } from "@/lib/analytics.ts";
+import { useMediaQuery } from "@/lib/useMediaQuery.ts";
 
 const AUTO_ADVANCE_MS = 3000;
 const SWIPE_THRESHOLD_PX = 40;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+// MagazinePage.module.css의 모바일 구간과 같은 폭
+const NARROW_QUERY = "(max-width: 820px)";
 
 interface Arrow {
   readonly key: string;
@@ -51,7 +54,18 @@ const ARROWS: readonly Arrow[] = [
 ];
 
 export default function MagazinePage() {
+  const slides = useMediaQuery(NARROW_QUERY) ? NARROW_SLIDES : SLIDES;
   const [index, setIndex] = useState(0);
+  const [shownSlides, setShownSlides] = useState(slides);
+  // 화면 폭이 바뀌어 슬라이드 목록이 달라지면, 보던 사진이 있는 슬라이드로 옮겨 간다
+  if (shownSlides !== slides) {
+    const shownPhoto = shownSlides[index]?.photos[0];
+    const nextIndex = slides.findIndex((slide) =>
+      slide.photos.some((photo) => photo.src === shownPhoto?.src),
+    );
+    setShownSlides(slides);
+    setIndex(Math.max(nextIndex, 0));
+  }
   const [held, setHeld] = useState(false);
   const [isHidden, setIsHidden] = useState(() => document.hidden);
   const [isMvOpen, setIsMvOpen] = useState(false);
@@ -63,9 +77,13 @@ export default function MagazinePage() {
   );
   const dragFromX = useRef<number | null>(null);
 
-  const move = useCallback((delta: number) => {
-    setIndex((current) => (current + delta + SLIDES.length) % SLIDES.length);
-  }, []);
+  const slideCount = slides.length;
+  const move = useCallback(
+    (delta: number) => {
+      setIndex((current) => (current + delta + slideCount) % slideCount);
+    },
+    [slideCount],
+  );
 
   // 자동 넘김: 인덱스가 바뀔 때마다 3초 카운트다운을 새로 시작한다
   useEffect(() => {
@@ -124,11 +142,10 @@ export default function MagazinePage() {
             id="slides"
             aria-live={isPaused || held ? "polite" : "off"}
           >
-            {SLIDES.map((slide, slideIndex) => {
+            {slides.map((slide, slideIndex) => {
               const isActive = slideIndex === index;
               const className = [
                 s.slide,
-                slide.layout === "three" ? s.three : null,
                 isActive ? s.isActive : null,
               ]
                 .filter(Boolean)
@@ -139,7 +156,7 @@ export default function MagazinePage() {
                   className={className}
                   role="group"
                   aria-roledescription="슬라이드"
-                  aria-label={`${SLIDES.length}장 중 ${slideIndex + 1}번째`}
+                  aria-label={`${slides.length}장 중 ${slideIndex + 1}번째`}
                   aria-hidden={!isActive}
                 >
                   {slide.photos.map((photo) => (
