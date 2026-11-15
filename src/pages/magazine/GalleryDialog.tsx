@@ -12,15 +12,18 @@ import s from "./GalleryDialog.module.css";
 import { GALLERY_PHOTOS, type GalleryPhoto } from "./galleryPhotos.ts";
 import { trackEvent } from "@/lib/analytics.ts";
 import { useCloseOnBack } from "@/lib/useCloseOnBack.ts";
+import { useMediaQuery } from "@/lib/useMediaQuery.ts";
 
 const ALL = "ALL";
 const SWIPE_THRESHOLD_PX = 50;
 // 태그 줄 화살표를 한 번 누르면 보이는 너비의 이만큼 옆으로 민다
 const CHIP_SCROLL_RATIO = 0.7;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+// 휴대폰 화면. 크게 보기의 좌우 버튼이 숨고 밀어서 넘기는 너비
+const PHONE_QUERY = "(max-width: 820px)";
 // 화면 너비별 열 개수. 위에서부터 먼저 맞는 조건을 쓴다
 const COLUMN_RULES = [
-  { query: "(max-width: 820px)", count: 2 },
+  { query: PHONE_QUERY, count: 2 },
   { query: "(max-width: 1200px)", count: 3 },
 ] as const;
 const DEFAULT_COLUMN_COUNT = 4;
@@ -140,6 +143,28 @@ function thumbnailOf(src: string) {
   };
 }
 
+/*
+  밀어서 넘기기 안내는 이 브라우저에서 한 번만 보여준다.
+  저장소를 못 쓰는 환경(사생활 보호 모드 등)에서는 매번 뜨지 않도록 이미 본 것으로 친다
+*/
+const SWIPE_HINT_KEY = "wonhee:swipe-hint-seen";
+
+function hasSeenSwipeHint() {
+  try {
+    return window.localStorage.getItem(SWIPE_HINT_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+function markSwipeHintSeen() {
+  try {
+    window.localStorage.setItem(SWIPE_HINT_KEY, "1");
+  } catch {
+    // 저장하지 못해도 안내는 이번 한 번 보여주고 끝낸다
+  }
+}
+
 const altOf = (photo: GalleryPhoto, index: number) =>
   photo.alt ?? `원희 사진 ${index + 1}`;
 
@@ -221,7 +246,9 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
   const [filter, setFilter] = useState<string>(ALL);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [loaded, setLoaded] = useState<ReadonlySet<string>>(() => new Set());
+  const [swipeHint, setSwipeHint] = useState(false);
   const columnCount = useColumnCount();
+  const isPhone = useMediaQuery(PHONE_QUERY);
 
   const seriesList = useMemo(
     () => [
@@ -260,6 +287,19 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
     if (viewerIndex !== null) viewerCloseRef.current?.focus();
   }, [viewerIndex]);
 
+  const openViewer = (index: number, photo: GalleryPhoto) => {
+    setViewerIndex(index);
+    // 휴대폰에서는 좌우 버튼이 없어서, 처음 한 번은 밀어서 넘길 수 있다고 알려준다
+    if (isPhone && photos.length > 1 && !hasSeenSwipeHint()) {
+      setSwipeHint(true);
+      markSwipeHintSeen();
+    }
+    trackEvent({
+      name: "view_photo",
+      params: { series: photo.series ?? "NONE" },
+    });
+  };
+
   // 크게 보기를 닫으면 마지막으로 본 사진 칸으로 포커스를 돌려준다
   const closeViewer = () => {
     if (viewerIndex !== null) {
@@ -268,6 +308,7 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
         ?.focus();
     }
     setViewerIndex(null);
+    setSwipeHint(false);
   };
 
   const step = (delta: number) => {
@@ -280,6 +321,7 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
 
   const handleClose = () => {
     setViewerIndex(null);
+    setSwipeHint(false);
     onClose();
   };
 
@@ -311,6 +353,8 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
   };
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
+    // 사진에 손을 대면 안내는 남은 시간과 상관없이 바로 치운다
+    setSwipeHint(false);
     dragFromX.current = event.pointerType === "mouse" ? null : event.clientX;
   };
 
@@ -428,13 +472,7 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
                     data-index={index}
                     data-loaded={loaded.has(thumbnail.src)}
                     aria-label={`${altOf(photo, index)} 크게 보기`}
-                    onClick={() => {
-                      setViewerIndex(index);
-                      trackEvent({
-                        name: "view_photo",
-                        params: { series: photo.series ?? "NONE" },
-                      });
-                    }}
+                    onClick={() => openViewer(index, photo)}
                   >
                     {open && (
                       <img
@@ -491,6 +529,25 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
               loaded={loaded.has(viewerPhoto.src)}
               onFullLoad={() => handleImageLoad(viewerPhoto.src)}
             />
+            {swipeHint && (
+              <div
+                className={s.swipeHint}
+                aria-hidden="true"
+                onAnimationEnd={(event) => {
+                  // 안쪽 손가락 움직임이 끝날 때가 아니라 안내 전체가 사라졌을 때만 치운다
+                  if (event.target === event.currentTarget) setSwipeHint(false);
+                }}
+              >
+                <div className={s.swipeDisc}>
+                  <span className={s.swipeTrack} />
+                  <svg viewBox="0 0 24 24">
+                    <path d="M9 12V4.6a1.6 1.6 0 0 1 3.2 0V11" />
+                    <path d="M12.2 10.2a1.6 1.6 0 0 1 3.2 0V11.5" />
+                    <path d="M15.4 11a1.6 1.6 0 0 1 3.2 0v3.6a6.4 6.4 0 0 1-6.4 6.4h-.6a6.4 6.4 0 0 1-5.1-2.6l-2.4-3.3a1.6 1.6 0 0 1 2.5-2L9 15.4" />
+                  </svg>
+                </div>
+              </div>
+            )}
             {photos.length > 1 && (
               <>
                 <button
