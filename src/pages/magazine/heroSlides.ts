@@ -2,7 +2,7 @@
   메인 화면 슬라이드에 나오는 사진. BREAK EVEN 4개 버전 사진을 모두 쓴다.
   파일은 갤러리 원본 주소에 ?type=e1920을 붙여 긴 변 1920px로 받아 assets에 넣었다.
 
-  - layout "three": 세로 사진 세 장을 나란히 보여준다
+  - layout "three": 세로 사진 세 장을 나란히 보여준다 (좁은 화면에서는 한 장씩 따로 넘긴다)
   - layout "one": 사진 한 장을 화면 가득 보여준다
   - focus: 얼굴 중심 위치. 사진 왼쪽 위가 0, 오른쪽 아래가 1
 */
@@ -248,3 +248,13 @@ export const SLIDES: readonly Slide[] = [
     focus: { x: 0.53, y: 0.29 },
   }),
 ];
+
+/*
+  좁은 세로 화면에서는 세 장을 나란히 두면 한 장이 너무 작아진다.
+  세 장짜리 슬라이드를 사진 한 장씩의 슬라이드로 풀어서 차례로 넘긴다
+*/
+export const NARROW_SLIDES: readonly Slide[] = SLIDES.flatMap((slide) =>
+  slide.layout === "three"
+    ? slide.photos.map((photo, i) => single(`${slide.id}-${i + 1}`, photo))
+    : [slide],
+);
