@@ -7,6 +7,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import s from "./MagazinePage.module.css";
+import FancamDialog from "./FancamDialog.tsx";
 import GalleryDialog from "./GalleryDialog.tsx";
 import MvDialog from "./MvDialog.tsx";
 import ProfileDialog from "./ProfileDialog.tsx";
@@ -73,7 +74,9 @@ export default function MagazinePage() {
   const [isMvOpen, setIsMvOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const isDialogOpen = isMvOpen || isGalleryOpen || isProfileOpen;
+  const [isFancamOpen, setIsFancamOpen] = useState(false);
+  const isDialogOpen =
+    isMvOpen || isGalleryOpen || isProfileOpen || isFancamOpen;
   // 움직임 줄이기를 켠 사용자는 멈춘 상태로 시작한다. 버튼으로 직접 다시 켤 수 있다
   const [isPaused, setIsPaused] = useState(
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
@@ -255,6 +258,28 @@ export default function MagazinePage() {
               d="M5 3.5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM5 18.5h14l-4.5-6-3 3.5-2.5-3zM15.5 10.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2z"
             />
           </svg>
+          <span className={s.tip} aria-hidden="true">
+            갤러리
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className={s.roundButton}
+          aria-label="직캠 보기"
+          aria-haspopup="dialog"
+          onClick={() => {
+            setIsFancamOpen(true);
+            trackEvent({ name: "open_fancam" });
+          }}
+        >
+          {/* 캠코더: 몸통과 앞쪽 렌즈. 갤러리 아이콘처럼 꽉 채운 면 */}
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.2 6h9.6a2.2 2.2 0 0 1 2.2 2.2v7.6a2.2 2.2 0 0 1-2.2 2.2H4.2A2.2 2.2 0 0 1 2 15.8V8.2A2.2 2.2 0 0 1 4.2 6zM17.3 10.4l3.6-2.4a.7.7 0 0 1 1.1.6v6.8a.7.7 0 0 1-1.1.6l-3.6-2.4z" />
+          </svg>
+          <span className={s.tip} aria-hidden="true">
+            직캠
+          </span>
         </button>
 
         <button
@@ -275,6 +300,10 @@ export default function MagazinePage() {
               }
             />
           </svg>
+          {/* 누르면 일어날 일을 적는다. 멈춰 있으면 "재생", 넘어가는 중이면 "일시정지" */}
+          <span className={s.tip} aria-hidden="true">
+            {isPaused ? "재생" : "일시정지"}
+          </span>
         </button>
 
         <button
@@ -305,6 +334,10 @@ export default function MagazinePage() {
       <ProfileDialog
         open={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
+      />
+      <FancamDialog
+        open={isFancamOpen}
+        onClose={() => setIsFancamOpen(false)}
       />
     </div>
   );

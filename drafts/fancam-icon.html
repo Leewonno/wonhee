@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>시안 · 직캠 아이콘 — 원희 팬사이트</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+<style>
+  :root {
+    --wall: #2a3038;
+    --paper: #f6f1e5;
+    --ink: #1f1e19;
+    --body: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 100px;
+    background: var(--wall);
+    color: var(--paper);
+    font: 15px/1.7 var(--body);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  button { font: inherit; color: inherit; }
+  .intro { max-width: 1240px; margin: 0 auto 32px; }
+  .intro h1 { margin: 0 0 6px; font-size: 22px; font-weight: 700; }
+  .intro p { margin: 0; opacity: 0.72; }
+
+  .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 28px; max-width: 1240px; margin: 0 auto; }
+  .option { overflow: hidden; border-radius: 16px; background: #1b2026; }
+  .option header { padding: 16px 18px 6px; }
+  .option h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .option h2 b { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-right: 8px; border-radius: 50%; background: var(--paper); color: var(--ink); font-size: 12px; }
+  .option h2 em { margin-left: 6px; font-size: 12px; font-style: normal; font-weight: 500; opacity: 0.55; }
+  .option p { margin: 4px 0 0; font-size: 13px; opacity: 0.7; }
+
+  /* 실제 메인 화면처럼 사진 위에 버튼을 얹는다 */
+  .scene { position: relative; height: 230px; margin-top: 12px; overflow: hidden; }
+  .scene img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; }
+  .scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(12, 16, 22, 0.62) 0%, rgba(12, 16, 22, 0.2) 60%, transparent); pointer-events: none; }
+  .big { position: absolute; z-index: 1; top: 20px; left: 50%; display: grid; place-items: center; width: 104px; height: 104px; border-radius: 50%; background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); transform: translateX(-50%); }
+  .big svg { width: 44px; height: 44px; }
+  .controls { position: absolute; z-index: 1; right: 18px; bottom: 18px; left: 18px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+
+  .round {
+    position: relative; display: grid; place-items: center; flex: none; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%;
+    background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); color: var(--paper); cursor: pointer; transition: background-color 0.18s ease;
+  }
+  .round:hover { background: rgba(12, 16, 22, 0.72); }
+  .round svg { width: 20px; height: 20px; }
+  .round.new { outline: 2px dashed rgba(255, 216, 74, 0.8); outline-offset: 4px; }
+  .tip {
+    position: absolute; bottom: calc(100% + 10px); left: 50%; padding: 6px 12px; border-radius: 8px; background: rgba(12, 16, 22, 0.78);
+    font-size: 13px; line-height: 1.3; white-space: nowrap; opacity: 0; transform: translate(-50%, 4px); transition: opacity 0.18s ease, transform 0.18s ease; pointer-events: none;
+  }
+  .round:hover .tip { opacity: 1; transform: translate(-50%, 0); }
+  .mv { display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 8px; border-radius: 999px; background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); }
+  .mv small { display: block; font-size: 11px; line-height: 1.4; opacity: 0.72; }
+  .mv strong { display: block; font-size: 15px; line-height: 1.4; font-weight: 600; }
+  .disc { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--paper); color: var(--ink); }
+  .disc svg { width: 16px; height: 16px; margin-left: 3px; }
+
+  /* 아이콘 공통: 갤러리 · 멈춤 아이콘처럼 꽉 채운 면. 선이 필요한 것만 stroke */
+  svg.icon { display: block; fill: currentColor; }
+  svg.icon .line { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* 작은 크기 줄: 휴대폰 버튼(52px)과 아이콘만 나란히 */
+  .sizes { display: flex; align-items: center; gap: 18px; padding: 14px 18px 18px; font-size: 12px; }
+  .sizes .round { width: 52px; height: 52px; background: rgba(246, 241, 229, 0.08); backdrop-filter: none; }
+  .sizes > span:not(.ink) { opacity: 0.6; }
+  .sizes .ink { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 12px; background: var(--paper); color: var(--ink); }
+  .sizes .ink svg { width: 24px; height: 24px; }
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>직캠 아이콘 시안</h1>
+  <p>모두 갤러리 · 멈춤 아이콘과 같은 "꽉 채운 면" 스타일로 그렸습니다. 사진 위 실제 버튼 줄(갤러리 · 직캠 · 멈춤 · MV)에 넣었고, 노란 점선이 직캠 버튼입니다. 마우스를 올리면 이름표가 뜹니다. 아래 줄은 휴대폰 버튼 크기와 밝은 바탕에서의 모양입니다.</p>
+</header>
+
+<div class="options" id="options"></div>
+
+<script>
+  const GALLERY = `<path fill-rule="evenodd" d="M5 3.5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM5 18.5h14l-4.5-6-3 3.5-2.5-3zM15.5 10.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2z" />`;
+  const PAUSE = `<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />`;
+  const PLAY = `<path d="M6 4l14 8-14 8z" />`;
+
+  const OPTIONS = [
+    {
+      name: "세로 화면 + 재생",
+      note: "지금 쓰는 것",
+      desc: "세로 직캠 화면에 재생 삼각형. 단순하지만 휴대폰·문서 아이콘처럼 읽힐 수 있음.",
+      svg: `<path fill-rule="evenodd" d="M8 2.5h8a2.2 2.2 0 0 1 2.2 2.2v14.6a2.2 2.2 0 0 1-2.2 2.2H8a2.2 2.2 0 0 1-2.2-2.2V4.7A2.2 2.2 0 0 1 8 2.5zM10.2 8.6v6.8l5.4-3.4z" />`,
+    },
+    {
+      name: "캠코더",
+      desc: "몸통과 앞쪽 렌즈. \"찍는 영상\"이라는 뜻이 가장 바로 읽힘. MV 버튼의 재생 삼각형과 겹치지 않음.",
+      svg: `<path d="M4.2 6h9.6a2.2 2.2 0 0 1 2.2 2.2v7.6a2.2 2.2 0 0 1-2.2 2.2H4.2A2.2 2.2 0 0 1 2 15.8V8.2A2.2 2.2 0 0 1 4.2 6zM17.3 10.4l3.6-2.4a.7.7 0 0 1 1.1.6v6.8a.7.7 0 0 1-1.1.6l-3.6-2.4z" />`,
+    },
+    {
+      name: "초점 틀 + 인물",
+      desc: "네 모서리 초점 틀 안에 한 사람. \"한 멤버만 따라 찍는 영상\"이라는 직캠 뜻에 가장 가까움.",
+      svg: `<path class="line" d="M3 8.5V5.2A2.2 2.2 0 0 1 5.2 3h3.3M15.5 3h3.3A2.2 2.2 0 0 1 21 5.2v3.3M21 15.5v3.3a2.2 2.2 0 0 1-2.2 2.2h-3.3M8.5 21H5.2A2.2 2.2 0 0 1 3 18.8v-3.3" /><path d="M12 6.6a2.7 2.7 0 1 1 0 5.4 2.7 2.7 0 0 1 0-5.4zM7 17.6c0-2.7 2.2-4.3 5-4.3s5 1.6 5 4.3z" />`,
+    },
+    {
+      name: "초점 틀 + 재생",
+      desc: "카메라 뷰파인더 모서리 안에 재생 삼각형. 3번보다 \"영상\" 쪽에 무게.",
+      svg: `<path class="line" d="M3 8.5V5.2A2.2 2.2 0 0 1 5.2 3h3.3M15.5 3h3.3A2.2 2.2 0 0 1 21 5.2v3.3M21 15.5v3.3a2.2 2.2 0 0 1-2.2 2.2h-3.3M8.5 21H5.2A2.2 2.2 0 0 1 3 18.8v-3.3" /><path d="M9.5 7.8v8.4l6.8-4.2z" />`,
+    },
+    {
+      name: "필름 띠",
+      desc: "양쪽에 구멍이 뚫린 세로 필름에 재생 삼각형. 영상 목록(여러 편)이라는 느낌.",
+      svg: `<path fill-rule="evenodd" d="M6.2 2h11.6A2.2 2.2 0 0 1 20 4.2v15.6a2.2 2.2 0 0 1-2.2 2.2H6.2A2.2 2.2 0 0 1 4 19.8V4.2A2.2 2.2 0 0 1 6.2 2zM5.8 4.4h1.8v1.8H5.8zM5.8 9.2h1.8V11H5.8zM5.8 13.9h1.8v1.8H5.8zM5.8 18.6h1.8v1.8H5.8zM16.4 4.4h1.8v1.8h-1.8zM16.4 9.2h1.8V11h-1.8zM16.4 13.9h1.8v1.8h-1.8zM16.4 18.6h1.8v1.8h-1.8zM10 8.6v6.8l5.2-3.4z" />`,
+    },
+    {
+      name: "녹화 표시",
+      desc: "카메라의 녹화(REC) 버튼 모양. 아주 단순해서 작은 크기에서도 또렷함. 다만 \"녹화하기\" 버튼으로 오해할 수 있음.",
+      svg: `<path fill-rule="evenodd" d="M12 2.5a9.5 9.5 0 1 1 0 19 9.5 9.5 0 0 1 0-19zM12 4.7a7.3 7.3 0 1 0 0 14.6 7.3 7.3 0 0 0 0-14.6z" /><path d="M12 7.6a4.4 4.4 0 1 1 0 8.8 4.4 4.4 0 0 1 0-8.8z" />`,
+    },
+    {
+      name: "인물 + 재생 배지",
+      desc: "사람 실루엣 옆에 작은 재생 동그라미. \"이 사람 영상\"이라는 뜻. 프로필 아이콘처럼 보일 수도 있음.",
+      svg: `<path d="M7.6 5.4a3.2 3.2 0 1 1 0 6.4 3.2 3.2 0 0 1 0-6.4zM2 20.5c0-3.3 2.5-5.6 5.6-5.6s5.4 2.2 5.6 5.6z" /><path fill-rule="evenodd" d="M18.5 12.7a4.3 4.3 0 1 1 0 8.6 4.3 4.3 0 0 1 0-8.6zM17.3 15v4l3.2-2z" />`,
+    },
+  ];
+
+  const icon = (paths) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
+
+  document.getElementById("options").innerHTML = OPTIONS.map((o, i) => `
+    <section class="option">
+      <header>
+        <h2><b>${i + 1}</b>${o.name}${o.note ? `<em>${o.note}</em>` : ""}</h2>
+        <p>${o.desc}</p>
+      </header>
+      <div class="scene">
+        <img class="bg" src="../src/assets/photos/break-even-gllit-05.jpg" alt="" />
+        <span class="big">${icon(o.svg)}</span>
+        <div class="controls">
+          <button class="round" type="button">${icon(GALLERY)}<span class="tip">갤러리</span></button>
+          <button class="round new" type="button">${icon(o.svg)}<span class="tip">직캠</span></button>
+          <button class="round" type="button">${icon(PAUSE)}<span class="tip">일시정지</span></button>
+          <span class="mv"><span class="disc">${icon(PLAY)}</span><span><small>NEW MV</small><strong>체포하겠어</strong></span></span>
+        </div>
+      </div>
+      <div class="sizes">
+        <button class="round" type="button">${icon(o.svg)}</button><span>휴대폰 52px</span>
+        <span class="ink">${icon(o.svg)}</span><span>밝은 바탕</span>
+      </div>
+    </section>`).join("");
+</script>
+</body>
+</html>

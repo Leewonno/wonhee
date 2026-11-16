@@ -9,6 +9,7 @@ import {
   type SyntheticEvent,
 } from "react";
 import s from "./GalleryDialog.module.css";
+import ChipBar from "./ChipBar.tsx";
 import { GALLERY_PHOTOS, type GalleryPhoto } from "./galleryPhotos.ts";
 import { trackEvent } from "@/lib/analytics.ts";
 import { useCloseOnBack } from "@/lib/useCloseOnBack.ts";
@@ -16,9 +17,6 @@ import { useMediaQuery } from "@/lib/useMediaQuery.ts";
 
 const ALL = "ALL";
 const SWIPE_THRESHOLD_PX = 50;
-// 태그 줄 화살표를 한 번 누르면 보이는 너비의 이만큼 옆으로 민다
-const CHIP_SCROLL_RATIO = 0.7;
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 // 휴대폰 화면. 크게 보기의 좌우 버튼이 숨고 밀어서 넘기는 너비
 const PHONE_QUERY = "(max-width: 820px)";
 // 화면 너비별 열 개수. 위에서부터 먼저 맞는 조건을 쓴다
@@ -52,54 +50,6 @@ function useColumnCount() {
   }, []);
 
   return count;
-}
-
-interface ScrollEdges {
-  /** 내용이 칸보다 넓어서 옆으로 밀 수 있는지 */
-  readonly overflow: boolean;
-  readonly atStart: boolean;
-  readonly atEnd: boolean;
-}
-
-const NO_OVERFLOW: ScrollEdges = { overflow: false, atStart: true, atEnd: true };
-
-function readEdges(element: HTMLElement): ScrollEdges {
-  const max = element.scrollWidth - element.clientWidth;
-  return {
-    overflow: max > 1,
-    atStart: element.scrollLeft <= 1,
-    atEnd: element.scrollLeft >= max - 1,
-  };
-}
-
-const sameEdges = (a: ScrollEdges, b: ScrollEdges) =>
-  a.overflow === b.overflow && a.atStart === b.atStart && a.atEnd === b.atEnd;
-
-// 가로로 넘치는 줄이 지금 어느 끝에 닿아 있는지 알려준다
-function useScrollEdges(
-  ref: { readonly current: HTMLElement | null },
-  active: boolean,
-) {
-  const [edges, setEdges] = useState<ScrollEdges>(NO_OVERFLOW);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element || !active) return;
-    const update = () => {
-      const next = readEdges(element);
-      setEdges((current) => (sameEdges(current, next) ? current : next));
-    };
-    update();
-    element.addEventListener("scroll", update, { passive: true });
-    const observer = new ResizeObserver(update);
-    observer.observe(element);
-    return () => {
-      element.removeEventListener("scroll", update);
-      observer.disconnect();
-    };
-  }, [ref, active]);
-
-  return edges;
 }
 
 /*
@@ -241,7 +191,6 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const viewerCloseRef = useRef<HTMLButtonElement>(null);
-  const chipsRef = useRef<HTMLDivElement>(null);
   const dragFromX = useRef<number | null>(null);
   const [filter, setFilter] = useState<string>(ALL);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
@@ -271,7 +220,6 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
   );
   const viewerPhoto = viewerIndex === null ? null : photos[viewerIndex];
   const hasChips = seriesList.length > 1;
-  const chipEdges = useScrollEdges(chipsRef, open && hasChips);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -366,16 +314,6 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
     if (Math.abs(movedX) >= SWIPE_THRESHOLD_PX) step(movedX < 0 ? 1 : -1);
   };
 
-  const scrollChips = (direction: -1 | 1) => {
-    const chips = chipsRef.current;
-    if (!chips) return;
-    const reduceMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-    chips.scrollBy({
-      left: direction * chips.clientWidth * CHIP_SCROLL_RATIO,
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
-  };
-
   const pickFilter = (series: string) => {
     setFilter(series);
     trackEvent({ name: "filter_gallery", params: { series } });
@@ -396,52 +334,13 @@ export default function GalleryDialog({ open, onClose }: GalleryDialogProps) {
           GALLERY <span>{GALLERY_PHOTOS.length}</span>
         </h2>
         {hasChips && (
-          <div className={s.chipBar}>
-            {chipEdges.overflow && (
-              <button
-                type="button"
-                className={s.chipArrow}
-                aria-label="앞쪽 촬영 묶음 보기"
-                aria-disabled={chipEdges.atStart}
-                onClick={() => !chipEdges.atStart && scrollChips(-1)}
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M15 5l-7 7 7 7" />
-                </svg>
-              </button>
-            )}
-            <div
-              ref={chipsRef}
-              className={s.chips}
-              role="group"
-              aria-label="촬영 묶음"
-            >
-              {[ALL, ...seriesList].map((series) => (
-                <button
-                  key={series}
-                  type="button"
-                  className={s.chip}
-                  aria-pressed={filter === series}
-                  onClick={() => pickFilter(series)}
-                >
-                  {series}
-                </button>
-              ))}
-            </div>
-            {chipEdges.overflow && (
-              <button
-                type="button"
-                className={s.chipArrow}
-                aria-label="뒤쪽 촬영 묶음 보기"
-                aria-disabled={chipEdges.atEnd}
-                onClick={() => !chipEdges.atEnd && scrollChips(1)}
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-          </div>
+          <ChipBar
+            label="촬영 묶음"
+            options={[ALL, ...seriesList]}
+            selected={filter}
+            onSelect={pickFilter}
+            active={open}
+          />
         )}
         <button
           type="button"

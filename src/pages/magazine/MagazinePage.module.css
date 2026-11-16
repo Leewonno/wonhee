@@ -170,6 +170,7 @@
   gap: 10px;
 }
 .roundButton {
+  position: relative;
   display: grid;
   place-items: center;
   flex: none;
@@ -186,6 +187,26 @@
 }
 .roundButton:hover { background: rgba(12, 16, 22, 0.72); }
 .roundButton svg { width: 20px; height: 20px; fill: currentColor; }
+/* 아이콘만 있는 버튼 위에 마우스를 올리거나 키보드로 오면 이름표를 띄운다 (터치 화면에서는 뜨지 않는다) */
+.tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(12, 16, 22, 0.78);
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .roundButton:hover .tip { opacity: 1; transform: translate(-50%, 0); }
+}
+.roundButton:focus-visible .tip { opacity: 1; transform: translate(-50%, 0); }
 
 /* 신곡 MV: 누르면 전체 화면 플레이어 */
 .mvButton {
@@ -263,12 +284,19 @@
   .page { font-size: 16px; }
   .arrow { width: 44px; height: 44px; }
   .mast { left: 16px; bottom: 96px; }
-  .controls { left: 16px; right: 16px; bottom: 20px; }
-  .mvButton { flex: 1; }
+  .controls { left: 16px; right: 16px; bottom: 20px; gap: 8px; }
+  /* 휴대폰은 둥근 버튼 셋 + MV 버튼이 한 줄에 들어가도록 조금씩 줄인다 */
+  .roundButton { width: 52px; height: 52px; }
+  .mvButton { flex: 1; min-width: 0; gap: 10px; padding: 6px 16px 6px 6px; }
+  .mvButton > span:last-child { min-width: 0; }
+  /* 폭이 모자라면 "NEW MV"와 곡 제목 둘 다 끝을 …으로 줄인다 */
+  .mvButton small, .mvButton strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mvButton strong { font-size: 16px; }
+  .playDisc { width: 40px; height: 40px; }
   .mast h1 { width: 50vw; }
   .mast p { margin-top: 0.8em; font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sign path { animation: none; }
-  .slide, .arrow, .roundButton, .mvButton, .profileButton { transition: none; }
+  .slide, .arrow, .roundButton, .mvButton, .profileButton, .tip { transition: none; }
 }

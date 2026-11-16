@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>시안 · 직캠 버튼 자리 — 원희 팬사이트</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet" />
+<style>
+  :root {
+    --wall: #2a3038;
+    --paper: #f6f1e5;
+    --ink: #1f1e19;
+    --mark: #ffd84a;
+    --body: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 100px;
+    background: var(--wall);
+    color: var(--paper);
+    font: 15px/1.7 var(--body);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  button { font: inherit; color: inherit; }
+  a { color: inherit; }
+
+  .intro { max-width: 1240px; margin: 0 auto 28px; }
+  .intro h1 { margin: 0 0 6px; font-size: 22px; font-weight: 700; }
+  .intro p { margin: 0; opacity: 0.72; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 14px; cursor: pointer; }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--mark); }
+
+  .option { max-width: 1240px; margin: 56px auto 0; }
+  .option h2 { margin: 0 0 4px; font-size: 18px; font-weight: 700; }
+  .option h2 b { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 8px; border-radius: 50%; background: var(--paper); color: var(--ink); font-size: 13px; }
+  .option > p { margin: 0 0 6px; max-width: 760px; opacity: 0.8; }
+  .option ul { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 0 0 16px; padding: 0; list-style: none; font-size: 13px; }
+  .option li { opacity: 0.66; }
+  .option li.good::before { content: "+ "; color: #9fdc9a; }
+  .option li.bad::before { content: "− "; color: #f0a0a0; }
+  .frames { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; }
+
+  /* 실제 크기(데스크톱 1440×900, 휴대폰 390×844)로 그린 뒤 줄여서 보여 준다 */
+  .frame { position: relative; flex: none; overflow: hidden; border-radius: 12px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35); }
+  .frame.desk { --s: 0.62; width: calc(1440px * var(--s)); height: calc(900px * var(--s)); }
+  .frame.mob { --s: 0.66; width: calc(390px * var(--s)); height: calc(844px * var(--s)); border-radius: 28px; outline: 8px solid #111418; outline-offset: -1px; }
+  .frame > .screen { transform: scale(var(--s)); transform-origin: 0 0; }
+  .caption { margin: 8px 0 0; font-size: 12px; opacity: 0.5; }
+
+  /* ───────── 메인 화면 (MagazinePage를 그대로 옮김) ───────── */
+  .screen {
+    --gutter: 72px;
+    position: relative;
+    width: 1440px;
+    height: 900px;
+    overflow: hidden;
+    background: #7d97aa;
+    color: var(--paper);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.75;
+  }
+  .mob .screen { --gutter: 16px; width: 390px; height: 844px; font-size: 16px; }
+  .photos { position: absolute; inset: 0; display: flex; }
+  .photos img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; }
+  .screen::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(to top, rgba(12, 16, 22, 0.62) 0%, rgba(12, 16, 22, 0.26) 26%, transparent 52%),
+      radial-gradient(90% 70% at 0% 100%, rgba(12, 16, 22, 0.42) 0%, transparent 70%);
+  }
+  .arrow {
+    position: absolute; z-index: 3; top: 50%; display: grid; place-items: center;
+    width: 52px; height: 52px; border-radius: 50%; background: rgba(12, 16, 22, 0.38); transform: translateY(-50%);
+  }
+  .arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .arrow.prev { left: 23px; }
+  .arrow.next { right: 23px; }
+  .mob .arrow { width: 44px; height: 44px; }
+  .mob .arrow.prev { left: 10px; }
+  .mob .arrow.next { right: 10px; }
+
+  .mast { position: absolute; z-index: 4; left: var(--gutter); bottom: 63px; }
+  .mob .mast { bottom: 96px; }
+  .mast svg.sign { display: block; width: 468px; height: auto; overflow: visible; filter: drop-shadow(0 2px 10px rgba(10, 14, 20, 0.45)); }
+  .mob .mast svg.sign { width: 195px; }
+  .sign path { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .mast p { display: flex; align-items: center; gap: 10px; margin: 1.1em 0 0 0.3em; font: 400 22px/1.5 var(--body); white-space: nowrap; text-shadow: 0 1px 10px rgba(10, 14, 20, 0.6); }
+  .mob .mast p { margin-top: 0.8em; font-size: 15px; }
+  .profileButton { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(246, 241, 229, 0.18); }
+  .profileButton svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  .controls { position: absolute; z-index: 4; right: var(--gutter); bottom: 63px; display: flex; align-items: center; gap: 10px; }
+  .mob .controls { left: 16px; right: 16px; bottom: 20px; }
+  .round, .mv, .glass {
+    border: 0; background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); color: var(--paper); cursor: pointer;
+    text-decoration: none; transition: background-color 0.18s ease;
+  }
+  .round:hover, .mv:hover, .glass:hover { background: rgba(12, 16, 22, 0.72); }
+  .round { display: grid; place-items: center; flex: none; width: 64px; height: 64px; padding: 0; border-radius: 50%; }
+  .round svg { width: 20px; height: 20px; fill: currentColor; }
+  .mv { display: flex; align-items: center; gap: 14px; padding: 8px 22px 8px 8px; border-radius: 999px; text-align: left; }
+  .mob .mv { flex: 1; min-width: 0; }
+  .mv small { display: block; font-size: 12px; line-height: 1.4; opacity: 0.72; }
+  .mv strong { display: block; font-size: 17px; line-height: 1.4; font-weight: 600; white-space: nowrap; }
+  .disc { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 50%; background: var(--paper); color: var(--ink); }
+  .disc svg { width: 18px; height: 18px; margin-left: 3px; fill: currentColor; }
+
+  /* 새로 넣은 자리 표시 */
+  body.mark .new { outline: 4px dashed var(--mark); outline-offset: 6px; }
+
+  /* ───────── 1. 둥근 버튼 줄에 하나 더 ───────── */
+  .tip {
+    position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+    padding: 6px 12px; border-radius: 8px; background: rgba(12, 16, 22, 0.78); font-size: 13px; line-height: 1.3; white-space: nowrap;
+  }
+  .withTip { position: relative; }
+  .mob .tip { display: none; }
+
+  /* ───────── 2. 소개 줄 아래 글자 메뉴 ───────── */
+  .mastNav { display: flex; gap: 22px; margin: 14px 0 0 0.3em; pointer-events: auto; }
+  .mastNav a {
+    display: inline-flex; align-items: baseline; gap: 6px; padding-bottom: 3px;
+    border-bottom: 1.5px solid rgba(246, 241, 229, 0.5); font-size: 17px; font-weight: 600; line-height: 1.3;
+    text-decoration: none; text-shadow: 0 1px 10px rgba(10, 14, 20, 0.6);
+  }
+  .mastNav a:hover { border-color: var(--paper); }
+  .mastNav sup { font-size: 12px; font-weight: 500; opacity: 0.7; }
+  .mob .mastNav { gap: 18px; margin-top: 10px; }
+  .mob .mastNav a { font-size: 14px; }
+  .mob.o2 .mast { bottom: 96px; }
+
+  /* ───────── 3. 오른쪽 위 구석 알약 버튼 ───────── */
+  .corner { position: absolute; z-index: 4; top: 32px; right: var(--gutter); }
+  .mob .corner { top: 18px; right: 16px; }
+  .glass { display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 20px 0 16px; border-radius: 999px; font-size: 15px; font-weight: 600; }
+  .glass svg { width: 18px; height: 18px; fill: currentColor; }
+  .glass span { font-weight: 400; opacity: 0.66; }
+  .mob .glass { height: 40px; padding: 0 14px 0 12px; font-size: 14px; }
+
+  /* ───────── 4. MV 버튼 위 미리보기 카드 ───────── */
+  .teaser {
+    position: absolute; z-index: 4; right: var(--gutter); bottom: 151px; display: block; width: 300px;
+    border-radius: 16px; overflow: hidden; background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px);
+    text-decoration: none; transition: background-color 0.18s ease;
+  }
+  .teaser:hover { background: rgba(12, 16, 22, 0.72); }
+  .thumbs { position: relative; aspect-ratio: 16 / 9; }
+  .thumbs img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; opacity: 0; animation: cycle 9s infinite; }
+  .thumbs img:nth-child(2) { animation-delay: 3s; }
+  .thumbs img:nth-child(3) { animation-delay: 6s; }
+  @keyframes cycle { 0%, 30% { opacity: 1; } 36%, 94% { opacity: 0; } 100% { opacity: 1; } }
+  .thumbs .badge { position: absolute; left: 10px; top: 10px; padding: 3px 8px; border-radius: 6px; background: rgba(12, 16, 22, 0.66); font-size: 12px; font-weight: 600; line-height: 1.4; }
+  .teaser .meta { display: flex; align-items: center; gap: 10px; padding: 10px 14px 12px; }
+  .teaser .meta strong { display: block; font-size: 15px; line-height: 1.35; }
+  .teaser .meta small { display: block; font-size: 12px; line-height: 1.4; opacity: 0.66; }
+  .teaser .meta svg { width: 14px; height: 14px; margin-left: auto; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .mob .teaser { top: 18px; right: 16px; bottom: auto; width: 168px; border-radius: 12px; }
+  .mob .teaser .meta { padding: 7px 10px 8px; }
+  .mob .teaser .meta strong { font-size: 13px; }
+  .mob .teaser .meta small { font-size: 11px; }
+  .mob .teaser .meta svg { display: none; }
+  .mob .thumbs .badge { left: 6px; top: 6px; font-size: 10px; padding: 2px 6px; }
+
+  /* ───────── 5. MV 버튼을 두 칸으로 나누기 ───────── */
+  .split { display: flex; align-items: stretch; border-radius: 999px; background: rgba(12, 16, 22, 0.5); backdrop-filter: blur(10px); }
+  .mob .split { flex: 1; min-width: 0; }
+  .split .mv { background: none; backdrop-filter: none; border-radius: 999px 0 0 999px; padding-right: 20px; }
+  .mob .split .mv { flex: 1; min-width: 0; }
+  .split .seg {
+    display: flex; align-items: center; gap: 10px; padding: 0 22px 0 18px; border-left: 1px solid rgba(246, 241, 229, 0.2);
+    border-radius: 0 999px 999px 0; text-decoration: none; transition: background-color 0.18s ease;
+  }
+  .split .seg:hover, .split .mv:hover { background: rgba(12, 16, 22, 0.3); }
+  .split .seg svg { width: 20px; height: 20px; fill: currentColor; }
+  .split .seg small { display: block; font-size: 12px; line-height: 1.4; opacity: 0.72; }
+  .split .seg strong { display: block; font-size: 17px; line-height: 1.4; font-weight: 600; }
+  .mob .split .seg { padding: 0 16px 0 14px; }
+  .mob .split .seg svg { display: none; }
+</style>
+</head>
+<body class="mark">
+
+<header class="intro">
+  <h1>직캠 버튼, 메인 화면 어디에 둘까</h1>
+  <p>실제 메인 화면 크기(데스크톱 1440×900, 휴대폰 390×844)로 그린 뒤 줄여 보여 줍니다. 새 버튼을 누르면 직캠 모달 시안(fancam-modal.html)으로 넘어갑니다. 직캠 수·날짜는 예시 값입니다.</p>
+  <label class="toggle"><input type="checkbox" id="markToggle" checked /> 새로 넣은 자리에 노란 점선 표시</label>
+</header>
+
+<!-- 아래 다섯 개 시안의 공통 부품은 <template>에 두고 JS로 끼워 넣는다 -->
+<template id="tpl-base">
+  <div class="photos"></div>
+  <span class="arrow prev"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" /></svg></span>
+  <span class="arrow next"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8" /></svg></span>
+  <div class="mast">
+    <svg class="sign" viewBox="0 0 321 198" aria-hidden="true">
+      <path d="M114.8 6C78 67.6 41.9 129.5 6 191.6" />
+      <path d="M6 191.6C25.2 169 44.9 147.2 65.9 126.3C69.2 123 84.5 105.3 88.9 108C93.4 110.7 89.7 121.3 88.6 125C84.7 138.1 77.8 173.9 103 170.9C117.2 169.2 150.1 121.8 160.1 109.3C164.4 103.9 176.3 93 170.8 85.5C164.1 76.5 149.7 91.1 145.1 96C129.9 112.2 104.3 154.9 132.1 171.2C162.2 188.9 202.2 130.6 215.5 109.8C222.5 98.9 232 84 232.3 70.6C232.4 69.7 232.4 67.3 231 67.1C229.2 66.8 217 85.9 215.1 88.8C203.2 106.9 191.5 125.7 182.6 145.4C179.8 151.5 174.5 161.6 178.1 168.2C179.6 171 182.5 172.6 185.4 173.5C198.7 178 209.2 167.8 217.3 158.6C246.9 124.9 265.5 110.2 279.6 65C280.2 59 282.4 50.8 279.4 45.2C272.8 32.6 240.2 61.9 236.4 69.3C235.1 71.9 236 73.9 236.3 76.5C250.7 72.6 264.9 67.7 279.6 65C272 70.5 226.4 112.5 243.8 114.8C251.6 115.8 273.5 72.5 279.6 65C284.4 57.5 288.4 49.8 296.8 45.6C317.3 35.2 324.1 57.1 298.8 66.2C292.4 65.8 286 65.4 279.6 65C286 65.4 292.4 65.8 298.8 66.2C328.4 78.6 298.6 107.2 272.6 96.5" />
+    </svg>
+    <p>ILLIT · WONHEE · 2007.06.26 <span class="profileButton"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8" /></svg></span></p>
+  </div>
+</template>
+
+<template id="tpl-gallery"><button class="round" aria-label="사진 갤러리"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5 3.5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM5 18.5h14l-4.5-6-3 3.5-2.5-3zM15.5 10.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2z" /></svg></button></template>
+<template id="tpl-pause"><button class="round" aria-label="자동 넘김 멈추기"><svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /></svg></button></template>
+<template id="tpl-mv"><button class="mv"><span class="disc"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" /></svg></span><span><small>NEW MV</small><strong>체포하겠어</strong></span></button></template>
+<!-- 직캠 아이콘: 세로 화면 모양 판에 재생 삼각형을 뚫어 그린다. 갤러리 아이콘처럼 꽉 채운 면 -->
+<template id="tpl-fancam-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M8 2.5h8a2.2 2.2 0 0 1 2.2 2.2v14.6a2.2 2.2 0 0 1-2.2 2.2H8a2.2 2.2 0 0 1-2.2-2.2V4.7A2.2 2.2 0 0 1 8 2.5zM10.2 8.6v6.8l5.4-3.4z" /></svg></template>
+
+<section class="option" data-option="1">
+  <h2><b>1</b>둥근 버튼 줄에 하나 더</h2>
+  <p>갤러리 버튼 바로 옆에 같은 크기의 직캠 버튼을 둡니다. "사진 보기 · 영상 보기"가 나란히 붙어서 무엇을 보는 버튼인지 묶여 읽힙니다. 데스크톱은 마우스를 올리면 "직캠" 말풍선이 뜹니다.</p>
+  <ul><li class="good">지금 화면 규칙을 하나도 안 바꿈</li><li class="good">구현이 가장 쉬움</li><li class="bad">아이콘만이라 처음엔 뭔지 모를 수 있음</li><li class="bad">휴대폰에서 MV 버튼 폭이 줄어듦</li></ul>
+  <div class="frames"></div>
+</section>
+
+<section class="option" data-option="2">
+  <h2><b>2</b>소개 줄 아래 글자 메뉴</h2>
+  <p>"ILLIT · WONHEE · 2007.06.26" 밑에 <b>사진 · 직캠</b>을 밑줄 글자로 둡니다. 갤러리 아이콘 버튼도 여기로 옮겨, 오른쪽 아래는 멈춤과 MV만 남깁니다. 옆에 작은 숫자로 몇 개 있는지 보여 줍니다.</p>
+  <ul><li class="good">글자라서 바로 뭔지 알 수 있음</li><li class="good">사인 · 소개 · 메뉴가 한 덩어리로 읽힘</li><li class="bad">갤러리 버튼 자리도 같이 바뀜</li><li class="bad">사인 영역이 한 줄만큼 위로 올라감</li></ul>
+  <div class="frames"></div>
+</section>
+
+<section class="option" data-option="3">
+  <h2><b>3</b>오른쪽 위 구석에 알약 버튼</h2>
+  <p>지금 비어 있는 오른쪽 위에 "직캠 25" 알약 버튼 하나만 둡니다. 아래쪽 버튼들과 겹치지 않고, 휴대폰에서도 엄지가 닿는 아래쪽을 그대로 비워 둡니다.</p>
+  <ul><li class="good">빈 자리를 쓰니 기존 배치를 안 건드림</li><li class="good">글자가 있어 알아보기 쉬움</li><li class="bad">버튼이 위아래로 흩어짐</li><li class="bad">사진 위쪽 얼굴 근처에 겹칠 수 있음</li></ul>
+  <div class="frames"></div>
+</section>
+
+<section class="option" data-option="4">
+  <h2><b>4</b>MV 버튼 위 미리보기 카드</h2>
+  <p>최신 직캠 썸네일이 3초마다 바뀌는 작은 카드를 MV 버튼 위에 얹습니다. 무엇이 들어 있는지 버튼이 직접 보여 줍니다. 휴대폰은 아래쪽에 자리가 없어서 오른쪽 위로 올립니다.</p>
+  <ul><li class="good">눌러 보고 싶게 만듦 (새 무대가 올라오면 바로 보임)</li><li class="bad">사진 위에 사진이 하나 더 생겨 화면이 붐빔</li><li class="bad">데스크톱/휴대폰 자리가 달라짐</li></ul>
+  <div class="frames"></div>
+</section>
+
+<section class="option" data-option="5">
+  <h2><b>5</b>MV 버튼을 두 칸으로 나누기</h2>
+  <p>MV 알약을 가운데 선으로 나눠 오른쪽 칸을 <b>직캠</b>으로 씁니다. 영상 두 종류가 한 버튼에 같이 있어 "보러 가는 곳"이 한 군데로 모입니다.</p>
+  <ul><li class="good">버튼 수가 늘지 않음</li><li class="good">글자 라벨이라 알아보기 쉬움</li><li class="bad">MV 버튼이 길어짐</li><li class="bad">신곡이 바뀔 때마다 둘을 같이 손봐야 함</li></ul>
+  <div class="frames"></div>
+</section>
+
+<script>
+  const PHOTO = (name) => `../src/assets/photos/break-even-${name}.jpg`;
+  // 메인 첫 슬라이드와 같은 사진, 같은 얼굴 위치
+  const DESK_PHOTOS = [
+    { name: "gllit-06", pos: "50% 31%" },
+    { name: "gllit-05", pos: "53% 22%" },
+    { name: "gllit-01", pos: "50% 38%" },
+  ];
+  const MOB_PHOTOS = [{ name: "gllit-05", pos: "53% 22%" }];
+  const MODAL_URL = "fancam-modal.html";
+
+  const tpl = (id) => document.getElementById(id).content.cloneNode(true);
+  const html = (id) => document.getElementById(id).innerHTML;
+  const fancamIcon = html("tpl-fancam-icon");
+
+  function base(kind) {
+    const frame = document.createElement("div");
+    frame.className = `frame ${kind}`;
+    const screen = document.createElement("div");
+    screen.className = "screen";
+    screen.append(tpl("tpl-base"));
+    const photos = screen.querySelector(".photos");
+    for (const p of kind === "desk" ? DESK_PHOTOS : MOB_PHOTOS) {
+      const img = document.createElement("img");
+      img.src = PHOTO(p.name);
+      img.alt = "";
+      img.style.objectPosition = p.pos;
+      photos.append(img);
+    }
+    frame.append(screen);
+    return { frame, screen };
+  }
+
+  function controls(screen, parts) {
+    const box = document.createElement("div");
+    box.className = "controls";
+    box.innerHTML = parts.join("");
+    screen.append(box);
+    return box;
+  }
+
+  const GALLERY = html("tpl-gallery");
+  const PAUSE = html("tpl-pause");
+  const MV = html("tpl-mv");
+
+  const BUILD = {
+    1(screen) {
+      controls(screen, [
+        GALLERY,
+        `<a class="round new withTip" href="${MODAL_URL}" aria-label="직캠 보기">${fancamIcon}<span class="tip">직캠</span></a>`,
+        PAUSE,
+        MV,
+      ]);
+    },
+    2(screen) {
+      const nav = document.createElement("nav");
+      nav.className = "mastNav";
+      nav.innerHTML = `<a href="#">사진<sup>25</sup></a><a class="new" href="${MODAL_URL}">직캠<sup>25</sup></a>`;
+      screen.querySelector(".mast").append(nav);
+      controls(screen, [PAUSE, MV]);
+    },
+    3(screen) {
+      const corner = document.createElement("div");
+      corner.className = "corner";
+      corner.innerHTML = `<a class="glass new" href="${MODAL_URL}">${fancamIcon}직캠 <span>25</span></a>`;
+      screen.append(corner);
+      controls(screen, [GALLERY, PAUSE, MV]);
+    },
+    4(screen) {
+      const card = document.createElement("a");
+      card.className = "teaser new";
+      card.href = MODAL_URL;
+      card.innerHTML = `
+        <div class="thumbs">
+          <img src="${PHOTO("mad-04")}" alt="" />
+          <img src="${PHOTO("quiet-01")}" alt="" />
+          <img src="${PHOTO("mad-06")}" alt="" />
+          <span class="badge">NEW</span>
+        </div>
+        <div class="meta">
+          <span><strong>직캠 25</strong><small>최신 · 11.15 인기가요</small></span>
+          <svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8" /></svg>
+        </div>`;
+      screen.append(card);
+      controls(screen, [GALLERY, PAUSE, MV]);
+    },
+    5(screen) {
+      controls(screen, [
+        GALLERY,
+        PAUSE,
+        `<div class="split">${MV}<a class="seg new" href="${MODAL_URL}">${fancamIcon}<span><small>무대</small><strong>직캠</strong></span></a></div>`,
+      ]);
+    },
+  };
+
+  for (const section of document.querySelectorAll(".option")) {
+    const n = section.dataset.option;
+    const frames = section.querySelector(".frames");
+    for (const kind of ["desk", "mob"]) {
+      const { frame, screen } = base(kind);
+      frame.classList.add(`o${n}`);
+      BUILD[n](screen);
+      const wrap = document.createElement("div");
+      wrap.append(frame);
+      const cap = document.createElement("p");
+      cap.className = "caption";
+      cap.textContent = kind === "desk" ? "데스크톱" : "휴대폰";
+      wrap.append(cap);
+      frames.append(wrap);
+    }
+  }
+
+  document.getElementById("markToggle").addEventListener("change", (event) => {
+    document.body.classList.toggle("mark", event.target.checked);
+  });
+</script>
+</body>
+</html>
