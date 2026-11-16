@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 직캠 동기화 스크립트가 남기는 PR 본문 (로컬 실행 시)
+fancam-sync-summary.md

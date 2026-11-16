@@ -1,0 +1,53 @@
+name: Sync fancams from namu.wiki
+
+# 나무위키 "원희(ILLIT)/음악 방송 직캠" 문서를 매일 읽고, 새 직캠이 있으면 PR을 올린다.
+# PR을 합치면 main에 push되어 deploy.yml이 사이트를 다시 배포한다.
+# 저장소 Settings → Actions → General → Workflow permissions 에서
+# "Allow GitHub Actions to create and approve pull requests" 를 켜 두어야 PR을 만들 수 있다.
+
+on:
+  schedule:
+    # 매일 한국 시간 새벽 3시 (UTC 18시)
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-fancams
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # 문서가 스크립트로 그려져서 헤드리스 크롬으로 읽는다. 사이트 의존성에는 넣지 않는다
+      - name: Install headless Chrome
+        run: |
+          npm install --no-save playwright-core@1
+          npx playwright-core install --with-deps chromium
+      - id: sync
+        run: node scripts/sync-fancams.mjs
+        env:
+          SUMMARY_PATH: ${{ runner.temp }}/fancam-sync-summary.md
+      # 바뀐 목록으로도 타입 검사와 빌드가 통과하는지 확인한 뒤에만 PR을 올린다
+      - if: steps.sync.outputs.changed == 'true'
+        run: npm run build
+      - if: steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: main
+          branch: auto/sync-fancams
+          add-paths: src/pages/magazine/fancams.ts
+          commit-message: "chore: 나무위키에서 새 직캠 ${{ steps.sync.outputs.count }}개 추가"
+          title: "새 직캠 ${{ steps.sync.outputs.count }}개 추가"
+          body-path: ${{ runner.temp }}/fancam-sync-summary.md
+          delete-branch: true
