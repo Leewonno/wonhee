@@ -39,6 +39,11 @@
   object-fit: cover;
   opacity: 0;
   transition: opacity 0.3s ease, transform 0.4s ease;
+  /*
+    썸네일 칸은 소수점 px 위치에 놓인다(예: x=352.25). 확대가 풀리는 순간 그림이 GPU 층에서
+    일반 그리기로 돌아가며 픽셀에 다시 맞춰져 한 번 덜컥 움직이므로, 층을 계속 유지한다
+  */
+  will-change: transform;
 }
 .thumb[data-loaded="true"] img { opacity: 1; }
 .tile:hover .thumb img { opacity: 0.86; transform: scale(1.03); }
