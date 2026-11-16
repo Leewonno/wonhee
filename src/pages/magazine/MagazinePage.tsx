@@ -255,6 +255,9 @@ export default function MagazinePage() {
               d="M5 3.5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2zM5 18.5h14l-4.5-6-3 3.5-2.5-3zM15.5 10.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2z"
             />
           </svg>
+          <span className={s.tip} aria-hidden="true">
+            갤러리
+          </span>
         </button>
 
         <button
@@ -275,6 +278,10 @@ export default function MagazinePage() {
               }
             />
           </svg>
+          {/* 누르면 일어날 일을 적는다. 멈춰 있으면 "재생", 넘어가는 중이면 "일시정지" */}
+          <span className={s.tip} aria-hidden="true">
+            {isPaused ? "재생" : "일시정지"}
+          </span>
         </button>
 
         <button
