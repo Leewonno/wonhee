@@ -13,15 +13,17 @@
   실행: node scripts/sync-fancams.mjs
   - CHROME_PATH: 쓸 크롬 경로 (로컬에서 설치된 크롬을 쓸 때). 비우면 playwright가 받은 크롬을 쓴다
   - SUMMARY_PATH: PR 본문을 쓸 파일 (기본: fancam-sync-summary.md)
+  - DEBUG_DIR: 문서를 못 읽었을 때 받은 화면을 남길 폴더 (기본: fancam-sync-debug)
   변경이 있으면 GitHub Actions 출력 changed=true 를 남긴다
 */
-import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 
 const WIKI_URL =
   "https://namu.wiki/w/%EC%9B%90%ED%9D%AC(ILLIT)/%EC%9D%8C%EC%95%85%20%EB%B0%A9%EC%86%A1%20%EC%A7%81%EC%BA%A0";
 const DATA_PATH = new URL("../src/pages/magazine/fancams.ts", import.meta.url);
 const SUMMARY_PATH = process.env.SUMMARY_PATH ?? "fancam-sync-summary.md";
+const DEBUG_DIR = process.env.DEBUG_DIR ?? "fancam-sync-debug";
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
 /*
@@ -92,13 +94,18 @@ async function readWiki() {
   });
   try {
     const page = await browser.newPage({ userAgent: USER_AGENT, locale: "ko-KR" });
-    await page.goto(WIKI_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    const response = await page.goto(WIKI_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
     // 문서 본문은 스크립트가 그린다. 유튜브 링크가 보일 때까지 기다린 뒤 조금 더 둔다
-    await page.waitForFunction(
-      () => document.querySelectorAll('a[href*="youtu"]').length > 0,
-      undefined,
-      { timeout: 60_000 },
-    );
+    try {
+      await page.waitForFunction(
+        () => document.querySelectorAll('a[href*="youtu"]').length > 0,
+        undefined,
+        { timeout: 60_000 },
+      );
+    } catch (error) {
+      await saveDebug(page, response);
+      throw new Error(`문서에서 유튜브 링크가 뜨지 않았다. ${DEBUG_DIR}에 남긴 화면을 확인한다`, { cause: error });
+    }
     await page.waitForTimeout(3000);
     return await page.evaluate(() => {
       const found = [];
@@ -113,6 +120,25 @@ async function readWiki() {
   } finally {
     await browser.close();
   }
+}
+
+/*
+  문서를 못 읽었을 때 받은 화면을 남긴다 (접속 차단 · 봇 확인 화면인지 보기 위해).
+  GitHub Actions에서는 이 폴더를 artifact로 올린다
+*/
+async function saveDebug(page, response) {
+  mkdirSync(DEBUG_DIR, { recursive: true });
+  const info = {
+    url: page.url(),
+    status: response?.status() ?? null,
+    headers: response ? await response.allHeaders() : null,
+    title: await page.title(),
+    text: (await page.evaluate(() => document.body?.innerText ?? "")).slice(0, 2000),
+  };
+  writeFileSync(`${DEBUG_DIR}/info.json`, JSON.stringify(info, null, 2));
+  writeFileSync(`${DEBUG_DIR}/page.html`, await page.content());
+  await page.screenshot({ path: `${DEBUG_DIR}/page.png`, fullPage: true });
+  console.error(`응답 ${info.status} · 제목 "${info.title}"\n${info.text.slice(0, 500)}`);
 }
 
 function videoIdOf(href) {

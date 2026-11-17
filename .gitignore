@@ -25,3 +25,5 @@ dist-ssr
 
 # 직캠 동기화 스크립트가 남기는 PR 본문 (로컬 실행 시)
 fancam-sync-summary.md
+# 직캠 동기화 스크립트가 문서를 못 읽었을 때 남기는 화면 (로컬 실행 시)
+fancam-sync-debug/

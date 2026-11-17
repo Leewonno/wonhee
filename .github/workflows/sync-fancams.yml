@@ -38,6 +38,15 @@ jobs:
         run: node scripts/sync-fancams.mjs
         env:
           SUMMARY_PATH: ${{ runner.temp }}/fancam-sync-summary.md
+          DEBUG_DIR: ${{ runner.temp }}/fancam-sync-debug
+      # 문서를 못 읽었으면 받은 화면(스크린샷 · HTML · 응답 정보)을 올려 둔다. 실행 페이지 아래 Artifacts에서 받는다
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fancam-sync-debug
+          path: ${{ runner.temp }}/fancam-sync-debug
+          if-no-files-found: ignore
+          retention-days: 7
       # 바뀐 목록으로도 타입 검사와 빌드가 통과하는지 확인한 뒤에만 PR을 올린다
       - if: steps.sync.outputs.changed == 'true'
         run: npm run build
