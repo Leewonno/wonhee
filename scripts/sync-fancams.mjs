@@ -1,6 +1,7 @@
 /*
   나무위키 "원희(ILLIT)/음악 방송 직캠" 문서를 읽어서, 새로 올라온 직캠을 src/pages/magazine/fancams.ts에 더한다.
-  GitHub Actions(.github/workflows/sync-fancams.yml)가 매일 돌리고, 바뀐 게 있으면 PR을 올린다.
+  Mac의 launchd(scripts/local-sync/)가 하루 한 번 돌리고, 바뀐 게 있으면 PR을 올린다.
+  나무위키가 GitHub Actions 서버 접속을 봇 확인 화면으로 막아서 GitHub Actions(.github/workflows/sync-fancams.yml)는 손으로만 돌린다.
 
   하는 일
   1. 헤드리스 크롬으로 문서를 열어 유튜브 링크와 그 링크가 있던 문서 목차(앨범)를 모은다

@@ -1,14 +1,15 @@
 name: Sync fancams from namu.wiki
 
-# 나무위키 "원희(ILLIT)/음악 방송 직캠" 문서를 매일 읽고, 새 직캠이 있으면 PR을 올린다.
+# 나무위키 "원희(ILLIT)/음악 방송 직캠" 문서를 읽고, 새 직캠이 있으면 PR을 올린다.
 # PR을 합치면 main에 push되어 deploy.yml이 사이트를 다시 배포한다.
 # 저장소 Settings → Actions → General → Workflow permissions 에서
 # "Allow GitHub Actions to create and approve pull requests" 를 켜 두어야 PR을 만들 수 있다.
+#
+# 매일 돌리지 않는다. 나무위키(Cloudflare)가 GitHub Actions 서버 접속을 봇 확인 화면으로 막아서
+# (2026-11-17 확인: 403, cf-mitigated: challenge), 매일 동기화는 Mac의 launchd가 한다 (scripts/local-sync/).
+# 차단이 풀렸는지 볼 때만 손으로 돌린다. 막히면 받은 화면이 artifact로 남는다.
 
 on:
-  schedule:
-    # 매일 한국 시간 새벽 3시 (UTC 18시)
-    - cron: "0 18 * * *"
   workflow_dispatch:
 
 permissions:
