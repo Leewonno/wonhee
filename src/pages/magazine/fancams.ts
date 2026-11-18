@@ -49,6 +49,7 @@ export interface Fancam {
 
 export const FANCAMS: readonly Fancam[] = [
   // BREAK EVEN
+  { id: "ELWJiygHbxc", album: "BREAK EVEN", song: "체포하겠어", show: "인기가요", date: "2026-11-15", kind: "페이스캠", length: "4:07" },
   { id: "79eFsTF2ETQ", album: "BREAK EVEN", song: "체포하겠어", show: "쇼! 음악중심", date: "2026-11-07", kind: "직캠", length: "3:23" },
   { id: "bEej5aJNSxY", album: "BREAK EVEN", song: "체포하겠어", show: "인기가요", date: "2026-11-01", kind: "페이스캠", length: "4:03" },
   { id: "qb4lic2UBdA", album: "BREAK EVEN", song: "체포하겠어", show: "쇼! 음악중심", date: "2026-10-31", kind: "직캠", length: "4:17" },
