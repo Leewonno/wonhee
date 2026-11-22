@@ -258,12 +258,15 @@
 .sheet::backdrop { background: transparent; }
 /* 영상 높이 = 화면 높이 − 위아래 여백. 그 높이에 맞는 16:9 너비로 정한다 */
 .sheetInner { width: min(100%, calc((100svh - 2 * var(--pad)) * 16 / 9)); }
-/* 닫기 버튼은 영상과 상관없이 화면 오른쪽 위 구석에 둔다 */
+/*
+  닫기 버튼은 영상과 상관없이 화면 오른쪽 위에 둔다.
+  갤러리·직캠 모달의 위쪽 줄(GalleryDialog.module.css .head)과 같은 자리에 오도록 여백을 맞춘다
+*/
 .close {
   position: absolute;
   z-index: 1;
-  top: clamp(12px, 2vw, 28px);
-  right: clamp(12px, 2vw, 28px);
+  top: clamp(14px, 2.4vw, 28px);
+  right: var(--gutter);
   display: grid;
   place-items: center;
   width: 44px;
@@ -285,6 +288,8 @@
   .arrow { width: 44px; height: 44px; }
   .mast { left: 16px; bottom: 96px; }
   .controls { left: 16px; right: 16px; bottom: 20px; gap: 8px; }
+  /* 갤러리·직캠 모달의 휴대폰 위쪽 줄(14px 16px)과 같은 자리 */
+  .close { top: 14px; right: 16px; }
   /* 휴대폰은 둥근 버튼 셋 + MV 버튼이 한 줄에 들어가도록 조금씩 줄인다 */
   .roundButton { width: 52px; height: 52px; }
   .mvButton { flex: 1; min-width: 0; gap: 10px; padding: 6px 16px 6px 6px; }
